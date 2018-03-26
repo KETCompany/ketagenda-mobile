@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'first_time_page.dart';
 
 import '../components/login_button.dart';
+import '../components/qr_scanner.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -53,7 +54,7 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton("Inloggen", new FirstTimePage()),
+                new LoginButton("Inloggen", new FirstTimePage())
               ],
             ),
           ),
