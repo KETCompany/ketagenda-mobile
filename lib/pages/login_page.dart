@@ -54,7 +54,8 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton("Inloggen", new FirstTimePage())
+                new LoginButton("Inloggen", new FirstTimePage()),
+                new QRScanner()
               ],
             ),
           ),

@@ -18,24 +18,7 @@ class _QRScanner extends State<QRScanner> {
   }
 
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      home: new Scaffold(
-          appBar: new AppBar(
-            title: new Text('Barcode Scanner Example'),
-          ),
-          body: new Center(
-            child: new Column(
-              children: <Widget>[
-                new Container(
-                  child: new MaterialButton(
-                      onPressed: scan, child: new Text("Scan")),
-                  padding: const EdgeInsets.all(8.0),
-                ),
-                new Text(barcode),
-              ],
-            ),
-          )),
-    );
+    return new MaterialButton(onPressed: scan, child: new Text("Scan"));
   }
 
   Future scan() async {
