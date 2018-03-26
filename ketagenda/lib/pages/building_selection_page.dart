@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../components/login_button.dart';
 
 class BuildingSelectionPage extends StatelessWidget {
   @override
