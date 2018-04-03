@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'first_time_page.dart';
-
-import '../components/login_button.dart';
-
-class LoginPage extends StatelessWidget {
+class BuildingSelectionPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Column(
@@ -22,24 +18,20 @@ class LoginPage extends StatelessWidget {
                     children: <Widget>[
                       new RichText(
                         text: new TextSpan(
-                          text: "KET Agenda",
+                          text: "Gebouw",
                           style: new TextStyle(
                               color: Colors.blueAccent, fontSize: 60.0),
                         ),
                       ),
                       new RichText(
                         text: new TextSpan(
-                          text: "Reserveer ruimte met gemak",
+                          text: "Kies de vestiging waar u wilt gaan boeken",
                           style: new TextStyle(
                               color: Colors.blueAccent, fontSize: 20.0),
                         ),
                       ),
                     ],
                   ),
-                  new Container(
-                    height: 150.0,
-                    child: new Image.asset("assets/logohr.png"),
-                  )
                 ],
               ),
             ),
@@ -53,7 +45,7 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton("Inloggen", new FirstTimePage()),
+                //Add content
               ],
             ),
           ),

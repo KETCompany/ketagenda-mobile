@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import '../components/login_button.dart';
 
-class BuildingSelectionPage extends StatelessWidget {
+import 'first_time_page.dart';
+
+import '../components/login_button.dart';
+import '../components/qr_scanner.dart';
+
+class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Column(
@@ -19,20 +23,24 @@ class BuildingSelectionPage extends StatelessWidget {
                     children: <Widget>[
                       new RichText(
                         text: new TextSpan(
-                          text: "Gebouw",
+                          text: "KET Agenda",
                           style: new TextStyle(
                               color: Colors.blueAccent, fontSize: 60.0),
                         ),
                       ),
                       new RichText(
                         text: new TextSpan(
-                          text: "Kies de vestiging waar u wilt gaan boeken",
+                          text: "Reserveer ruimte met gemak",
                           style: new TextStyle(
                               color: Colors.blueAccent, fontSize: 20.0),
                         ),
                       ),
                     ],
                   ),
+                  new Container(
+                    height: 150.0,
+                    child: new Image.asset("assets/logohr.png"),
+                  )
                 ],
               ),
             ),
@@ -46,7 +54,8 @@ class BuildingSelectionPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                //Add content
+                new LoginButton("Inloggen", new FirstTimePage()),
+                new QRScanner()
               ],
             ),
           ),
