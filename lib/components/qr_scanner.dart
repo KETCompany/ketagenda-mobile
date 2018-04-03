@@ -18,7 +18,19 @@ class _QRScanner extends State<QRScanner> {
   }
 
   Widget build(BuildContext context) {
-    return new MaterialButton(onPressed: scan, child: new Text("Scan"));
+    return new Container(
+      height: 50.0,
+      width: double.infinity,
+      margin: new EdgeInsets.only(top:5.0, left: 5.0, right: 5.0, bottom: 5.0),
+      child: new FlatButton(
+        onPressed: () {
+          scan();
+        },
+        child: new Text("Scan QR code"),
+        color: Colors.lightBlue,
+        textColor: Colors.white,
+      )
+      );
   }
 
   Future scan() async {
