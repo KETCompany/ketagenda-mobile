@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
 class LoginButton extends StatelessWidget {
-  final String _buttonText;
   final Widget navigateToPage;
 
-  LoginButton(this._buttonText, this.navigateToPage);
+  LoginButton(this.navigateToPage);
 
   @override
   Widget build(BuildContext context) {
@@ -14,12 +13,9 @@ class LoginButton extends StatelessWidget {
       margin: new EdgeInsets.only(left: 5.0, right: 5.0, bottom: 0.0),
       child: new FlatButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            new MaterialPageRoute(builder: (context) => this.navigateToPage),
-          );
+          Navigator.of(context).pushNamed('/FirstTimePage');
         },
-        child: new Text(_buttonText),
+        child: new Text("Inloggen"),
         color: Colors.lightBlue,
         textColor: Colors.white,
       ),

@@ -54,8 +54,15 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton("Inloggen", new FirstTimePage()),
-                new QRScanner()
+                new LoginButton(new FirstTimePage()),
+                new FlatButton(
+                  child: new Text("Scan QR code"),
+                  color: Colors.lightBlue,
+                  textColor: Colors.white,
+                  onPressed: () {
+                    Navigator.of(context).pushNamed('/QRPage');
+                  },
+                )
               ],
             ),
           ),
