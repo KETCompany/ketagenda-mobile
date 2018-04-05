@@ -75,7 +75,33 @@ class FirstTimePage extends StatelessWidget {
                                 child: new IconButton(
                                   splashColor: Colors.green,
                                   color: Colors.greenAccent[700],
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      child: new AlertDialog(
+                                        title: new Text(
+                                            "Probeer het later opnieuw"),
+                                        content: new SingleChildScrollView(
+                                          child: new ListBody(
+                                            children: <Widget>[
+                                              new Text(
+                                                  'Op dit moment is er nog geen uitleg beschikbaar.'),
+                                              new Text(
+                                                  'Probeer het later opnieuw.'),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                   icon: new Icon(Icons.thumb_up),
                                 ),
                               ),

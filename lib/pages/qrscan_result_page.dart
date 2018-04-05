@@ -17,7 +17,7 @@ class _QRPage extends State<QRPage> {
 
   //Get info from room number (result of QR code scan)
   String url =
-      "https://ketagenda-199308.appspot.com/api/rooms/"; //Wouter gebruikt QRs met mongoid, dus dit vervalt:"https://ketagenda-199308.appspot.com/api/rooms?name=";
+      "https://ketagenda-199308.appspot.com/api/rooms/";
   List data;
   String pageTitle = "Laden..";
   TextEditingController _controllerRoomName;
