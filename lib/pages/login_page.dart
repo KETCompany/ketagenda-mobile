@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'first_time_page.dart';
 
 import '../components/login_button.dart';
-import '../components/qr_scanner.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -54,8 +53,19 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton("Inloggen", new FirstTimePage()),
-                new QRScanner()
+                new LoginButton(new FirstTimePage()),
+                new Container(
+                  padding: new EdgeInsets.all(5.0),
+                  width: double.infinity,
+                  child: new FlatButton(
+                    child: new Text("Scan QR code"),
+                    color: Colors.lightBlue,
+                    textColor: Colors.white,
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/QRPage');
+                    },
+                  ),
+                ),
               ],
             ),
           ),
