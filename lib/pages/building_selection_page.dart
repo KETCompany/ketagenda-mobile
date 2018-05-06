@@ -14,7 +14,8 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   List data = new List();
 
   Future getSWData() async {
-    var res = await http.get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var res = await http
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
 
     setState(() {
       var resBody = json.decode(res.body);
@@ -68,13 +69,30 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
                 itemBuilder: (BuildContext context, int index) {
                   return new ListTile(
                     leading: new CircleAvatar(
-                      child: new Text( data[index]["location"] != null ? data[index]["location"] : "?"),
+                      child: new Text(data[index]["location"] != null
+                          ? data[index]["location"]
+                          : "?"),
                       backgroundColor: Colors.blueAccent,
                     ),
                     title: new Text(data[index]["name"].toString()),
-                    subtitle: new Text('Type: ' + data[index]["type"].toString().toUpperCase()),
+                    subtitle: new Text('Type: ' +
+                        data[index]["type"].toString().toUpperCase()),
                     onTap: () {
-                      
+                      showDialog(
+                        context: context,
+                        child: new AlertDialog(
+                          title: new Text("Nog niet beschikbaar!"),
+                          content: new Text("Binnenkort kunt u hiervan gebruik maken."),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
                     },
                   );
                 },
