@@ -10,16 +10,11 @@ class BuildingSelectionPage extends StatefulWidget {
 
 class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   //Get info from room number (result of QR code scan)
-  String url = "https://ketagenda-199308.appspot.com/api/rooms/";
-  List data;
-  TextEditingController _controllerRoomName;
-  TextEditingController _controllerRoomType;
-  TextEditingController _controllerRoomLocation;
-  TextEditingController _controllerRoomFloor;
+  String url = 'http://keta.superict.nl/api/rooms?name=';
+  List data = new List();
 
   Future getSWData() async {
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var res = await http.get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
 
     setState(() {
       var resBody = json.decode(res.body);
@@ -46,14 +41,14 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
                       children: <Widget>[
                         new RichText(
                           text: new TextSpan(
-                            text: "Gebouw",
+                            text: "Kamer",
                             style: new TextStyle(
                                 color: Colors.blueAccent, fontSize: 60.0),
                           ),
                         ),
                         new RichText(
                           text: new TextSpan(
-                            text: "Kies de vestiging waar u wilt gaan boeken",
+                            text: "Kies de gewenste kamer",
                             style: new TextStyle(
                                 color: Colors.blueAccent, fontSize: 20.0),
                           ),
@@ -69,15 +64,18 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
             child: new Scaffold(
               backgroundColor: Colors.redAccent[50],
               body: new ListView.builder(
-                itemCount: data.length,
+                itemCount: data.length > 0 ? data.length : 0,
                 itemBuilder: (BuildContext context, int index) {
                   return new ListTile(
                     leading: new CircleAvatar(
-                      child: new Text((data[index]["location"].toString())),
+                      child: new Text( data[index]["location"] != null ? data[index]["location"] : "?"),
                       backgroundColor: Colors.blueAccent,
                     ),
                     title: new Text(data[index]["name"].toString()),
-                    subtitle: new Text(data[index]["type"].toString()),
+                    subtitle: new Text('Type: ' + data[index]["type"].toString().toUpperCase()),
+                    onTap: () {
+                      
+                    },
                   );
                 },
               ),
