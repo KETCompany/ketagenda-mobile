@@ -11,7 +11,7 @@ void main() {
         "/": (BuildContext context) => new LoginPage(),
         "/QRPage": (BuildContext context) => new QRPage(),
         "/FirstTimePage": (BuildContext context) => new FirstTimePage(),
-        "/BuildingSelectionPage": (BuildContext context) => new BuildingSelectionPage()
+        "/BuildingSelectionPage": (BuildContext context) => new BuildingSelectionPage(),
       },
   ));
 }

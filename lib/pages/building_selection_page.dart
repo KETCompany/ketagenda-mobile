@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'room_details_page.dart';
 
 class BuildingSelectionPage extends StatefulWidget {
   @override
@@ -63,7 +64,7 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
           ),
           new Expanded(
             child: new Scaffold(
-              backgroundColor: Colors.redAccent[50],
+              backgroundColor: Colors.redAccent[700],
               body: new ListView.builder(
                 itemCount: data.length > 0 ? data.length : 0,
                 itemBuilder: (BuildContext context, int index) {
@@ -74,23 +75,20 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
                           : "?"),
                       backgroundColor: Colors.blueAccent,
                     ),
-                    title: new Text(data[index]["name"].toString()),
-                    subtitle: new Text('Type: ' +
-                        data[index]["type"].toString().toUpperCase()),
+                    title: new Text(
+                      data[index]["name"].toString(),
+                      style: new TextStyle(color: Colors.white),
+                    ),
+                    subtitle: new Text(
+                      'Type: ' + data[index]["type"].toString().toUpperCase(),
+                      style: new TextStyle(color: Colors.white70),
+                    ),
                     onTap: () {
-                      showDialog(
-                        context: context,
-                        child: new AlertDialog(
-                          title: new Text("Nog niet beschikbaar!"),
-                          content: new Text("Binnenkort kunt u hiervan gebruik maken."),
-                          actions: <Widget>[
-                            new FlatButton(
-                              child: new Text('OK'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                          ],
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              new RoomDetailsPage(roomId: data[index]["_id"]),
                         ),
                       );
                     },
