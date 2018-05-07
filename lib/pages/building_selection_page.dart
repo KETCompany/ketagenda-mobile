@@ -9,6 +9,23 @@ class BuildingSelectionPage extends StatefulWidget {
   _BuildingSelectionPage createState() => new _BuildingSelectionPage();
 }
 
+class MyCustomRoute<T> extends MaterialPageRoute<T> {
+  MyCustomRoute({ WidgetBuilder builder, RouteSettings settings })
+      : super(builder: builder, settings: settings);
+
+  @override
+  Widget buildTransitions(BuildContext context,
+      Animation<double> animation,
+      Animation<double> secondaryAnimation,
+      Widget child) {
+    if (settings.isInitialRoute)
+      return child;
+    // Fades between routes. (If you don't want any animation, 
+    // just return child.)
+    return new FadeTransition(opacity: animation, child: child);
+  }
+}
+
 class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   //Get info from room number (result of QR code scan)
   String url = 'http://keta.superict.nl/api/rooms?name=';
@@ -41,19 +58,37 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
                   children: <Widget>[
                     new Column(
                       children: <Widget>[
-                        new RichText(
-                          text: new TextSpan(
-                            text: "Kamer",
-                            style: new TextStyle(
-                                color: Colors.blueAccent, fontSize: 60.0),
-                          ),
-                        ),
-                        new RichText(
-                          text: new TextSpan(
-                            text: "Kies de gewenste kamer",
-                            style: new TextStyle(
-                                color: Colors.blueAccent, fontSize: 20.0),
-                          ),
+                        new Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            new Column(
+                              children: <Widget>[
+                                new RichText(
+                                  text: new TextSpan(
+                                    text: "Kamer",
+                                    style: new TextStyle(
+                                        color: Colors.blueAccent,
+                                        fontSize: 60.0),
+                                  ),
+                                ),
+                                new RichText(
+                                  text: new TextSpan(
+                                    text: "Kies de gewenste kamer",
+                                    style: new TextStyle(
+                                        color: Colors.blueAccent,
+                                        fontSize: 20.0),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            new Container(
+                              height: 100.0,
+                              child: new Hero(
+                                tag: 'imageHero',
+                                child: new Image.asset("assets/logohr.png"),
+                              ),
+                            )
+                          ],
                         ),
                       ],
                     ),
@@ -86,10 +121,13 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        new MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              new RoomDetailsPage(roomId: data[index]["_id"]),
-                        ),
+                        new MyCustomRoute(
+            builder: (_) => new RoomDetailsPage(roomId: data[index]["_id"]),
+          ),
+                        // new MaterialPageRoute(
+                        //   builder: (BuildContext context) =>
+                        //       new RoomDetailsPage(roomId: data[index]["_id"]),
+                        // ),
                       );
                     },
                   );

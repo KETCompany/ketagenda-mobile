@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-
 import 'first_time_page.dart';
-
 import '../components/login_button.dart';
 
 class LoginPage extends StatelessWidget {
@@ -38,7 +36,10 @@ class LoginPage extends StatelessWidget {
                   ),
                   new Container(
                     height: 150.0,
-                    child: new Image.asset("assets/logohr.png"),
+                    child: new Hero(
+                      tag: 'imageHero',
+                      child: new Image.asset("assets/logohr.png"),
+                    ),
                   )
                 ],
               ),

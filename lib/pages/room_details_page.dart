@@ -151,7 +151,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                           new ListTile(
                             leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.floor),
-                            subtitle: new Text("Verdieping"),
+                            subtitle: new Text("Verdiepingsnummer"),
                           ),
                         ],
                       ),

@@ -16,8 +16,7 @@ class _QRPage extends State<QRPage> {
   String barcode;
 
   //Get info from room number (result of QR code scan)
-  String url =
-      "http://keta.superict.nl/api/rooms/";
+  String url = "http://keta.superict.nl/api/rooms/";
   List data;
   String pageTitle = "Laden..";
   TextEditingController _controllerRoomName;
@@ -48,7 +47,8 @@ class _QRPage extends State<QRPage> {
   @override
   Widget build(BuildContext context) {
     print("Barcode status: " + barcode);
-    if (barcode.contains("null")) { //User pressed back btn of device during scan
+    if (barcode.contains("null")) {
+      //User pressed back btn of device during scan
       return new LoginPage();
     } else {
       if (barcode.isEmpty) {
@@ -86,7 +86,10 @@ class _QRPage extends State<QRPage> {
                       ),
                       new Container(
                         height: 150.0,
-                        child: new Image.asset("assets/logohr.png"),
+                        child: new Hero(
+                          tag: 'imageHero',
+                          child: new Image.asset("assets/logohr.png"),
+                        ),
                       )
                     ],
                   ),
