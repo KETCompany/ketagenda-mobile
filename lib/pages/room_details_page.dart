@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class RoomDetailsPage extends StatefulWidget {
   RoomDetailsPage({Key key, this.roomId}) : super(key: key);
@@ -16,7 +17,7 @@ class RoomInfo {
   String type = "...";
   String location = "...";
   String floor = "...";
-  List booked = new List();
+  List bookings = new List();
 }
 
 class _RoomDetailsPage extends State<RoomDetailsPage> {
@@ -28,13 +29,50 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
 
   //Controllers
   RoomInfo _roomInfo = new RoomInfo();
+  List timeslotsOfADayStarting = new List();
+  List timeslotsOfADayEnding = new List();
+  List<bool> timeslotsSelectedWithCheckboxes = new List<bool>.filled(15, false);
 
   List data = new List();
-
+  bool checkBoxState = true;
   Future getSWData() async {
+    // print(roomId);
     var res = await http.get(Uri.encodeFull(url + roomId),
         headers: {"Accept": "application/json"});
-
+    timeslotsOfADayStarting.addAll([
+      "8:30",
+      "9:20",
+      "10:30",
+      "11:20",
+      "12:10",
+      "13:00",
+      "13:50",
+      "15:00",
+      "15:50",
+      "17:00",
+      "17:50",
+      "18:40",
+      "19:30",
+      "20:20",
+      "21:10"
+    ]);
+    timeslotsOfADayEnding.addAll([
+      "9:20",
+      "10:10",
+      "11:20",
+      "12:10",
+      "13:00",
+      "13:50",
+      "14:40",
+      "15:50",
+      "16:40",
+      "17:50",
+      "18:40",
+      "19:30",
+      "20:20",
+      "21:10",
+      "22:00"
+    ]);
     setState(() {
       var resBody = json.decode(res.body);
       data = resBody;
@@ -47,7 +85,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
           : "Unknown";
       _roomInfo.floor =
           data[0]["floor"] != null ? data[0]["floor"].toString() : "Unknown";
-      _roomInfo.booked = data[0]["booked"];
+      _roomInfo.bookings = data[0]["bookings"];
     });
   }
 
@@ -166,7 +204,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               padding: new EdgeInsets.all(5.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: "Rooster",
+                  text: "Rooster van vandaag",
                   style: new TextStyle(color: Colors.white, fontSize: 28.0),
                 ),
               ),
@@ -174,27 +212,116 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
           ),
           new Expanded(
             child: ListView.builder(
-              itemCount: _roomInfo.booked.length,
+              itemCount: timeslotsOfADayStarting
+                  .length, // 1 day consists of 15 time blocks
               itemBuilder: (BuildContext context, int index) {
-                return new ListTile(
-                  leading: new CircleAvatar(
-                    child: new Text(_roomInfo.booked[index]["duration"] != null
-                        ? _roomInfo.booked[index]["duration"].toString() + "u"
-                        : "?"),
-                    backgroundColor: Colors.blueAccent,
-                  ),
-                  title: new Text(
-                    "Klas: ${_roomInfo.booked[index]["class"]}",
-                    style: new TextStyle(color: Colors.white),
-                  ),
-                  subtitle: new Text(
-                    'Lescode: ${_roomInfo.booked[index]["subjectCode"]}',
-                    style: new TextStyle(color: Colors.white70),
-                  ),
-                );
+                {
+                  // ListTile to display when it is able to be booked:
+                  ListTile bookableItem = new ListTile(
+                    leading: new CircleAvatar(
+                      child: new Text((index + 1).toString()),
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                    title: new Row(
+                      children: <Widget>[
+                        new Expanded(
+                            child: new Text("Beschikbaar",
+                                style: new TextStyle(color: Colors.white))),
+                        new Checkbox(
+                          value: timeslotsSelectedWithCheckboxes[index],
+                          onChanged: (bool value) {
+                            this.setState(() {
+                              timeslotsSelectedWithCheckboxes[index] = value;
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                    subtitle: new Text(
+                      "Dit tijdblok is vrij om te reserveren",
+                      style: new TextStyle(color: Colors.white70),
+                    ),
+                    onTap: () {
+                      showTimePicker(
+                        initialTime: new TimeOfDay.now(),
+                        context: context,
+                      );
+                    },
+                  );
+
+                  // Date of today
+                  DateTime now = new DateTime.now();
+                  String todayDate = new DateFormat.yMd().format(now);
+
+                  // Check if current day and timeslot can be found in the bookings
+                  bool foundReserved = false;
+                  if (index < timeslotsOfADayStarting.length - 1) {
+                    int selectedTimeHour = int.parse(
+                        timeslotsOfADayStarting[index]
+                            .toString()
+                            .split(":")[0]);
+                    int selectedTimeMinute = int.parse(
+                        timeslotsOfADayStarting[index]
+                            .toString()
+                            .split(":")[1]);
+
+                    for (final item in _roomInfo.bookings) {
+                      DateTime startDate =
+                          DateTime.parse(item["dates"][0]["start"].toString());
+                      DateTime endDate =
+                          DateTime.parse(item["dates"][0]["end"].toString());
+                      String retrievedDate =
+                          new DateFormat.yMd().format(startDate);
+
+                      // Check if current booking is from today and also check if
+                      // the time is this timeslot, than display it is reserved.
+                      if (retrievedDate == todayDate // Booking is from today
+                              &&
+                              ((selectedTimeHour * 60) + selectedTimeMinute) >=
+                                  ((startDate.hour * 60) + startDate.minute)
+                              // Booking start time is this one
+                              &&
+                              ((selectedTimeHour * 60) + selectedTimeMinute) <=
+                                  ((endDate.hour * 60) + endDate.minute)
+                          // Booking start time is this one
+                          ) {
+                        //Booking end time
+                        foundReserved = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  if (foundReserved) {
+                    return new ListTile(
+                      leading: new CircleAvatar(
+                        child: new Text((index + 1).toString()),
+                        backgroundColor: Colors.blueAccent,
+                      ),
+                      title: new Text(
+                        "GERESERVEERD",
+                        style: new TextStyle(color: Colors.white),
+                      ),
+                    );
+                  } else {
+                    return bookableItem;
+                  }
+                }
               },
             ),
           ),
+          new Container(
+            height: 50.0,
+            width: double.infinity,
+            child: new FlatButton(
+              onPressed: () {
+                Navigator.of(context).pushNamed('/FirstTimePage');
+              },
+              child: new Text("Doorgaan naar reservering"),
+              color: Colors.lightBlue,
+              textColor: Colors.white,
+            ),
+          )
         ],
       ),
     );
