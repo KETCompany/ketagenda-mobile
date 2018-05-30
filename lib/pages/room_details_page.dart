@@ -2,6 +2,23 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
+import 'room_booking_page.dart';
+import '../components/room_info.dart';
+
+class MyCustomRoute<T> extends MaterialPageRoute<T> {
+  MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
+      : super(builder: builder, settings: settings);
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    if (settings.isInitialRoute) return child;
+    // Fades between routes. (If you don't want any animation,
+    // just return child.)
+    return new FadeTransition(opacity: animation, child: child);
+  }
+}
 
 class RoomDetailsPage extends StatefulWidget {
   RoomDetailsPage({Key key, this.roomId}) : super(key: key);
@@ -9,14 +26,6 @@ class RoomDetailsPage extends StatefulWidget {
 
   @override
   _RoomDetailsPage createState() => new _RoomDetailsPage(roomId);
-}
-
-class RoomInfo {
-  String name = "...";
-  String type = "...";
-  String location = "...";
-  String floor = "...";
-  List booked = new List();
 }
 
 class _RoomDetailsPage extends State<RoomDetailsPage> {
@@ -28,13 +37,20 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
 
   //Controllers
   RoomInfo _roomInfo = new RoomInfo();
+  TimeSlotsInfo _timeSlotInfo = new TimeSlotsInfo();
+  List<bool> timeslotsSelectedWithCheckboxes = new List<bool>.filled(15, false);
+
+  // Date of today
+  DateTime now = new DateTime.now();
+  int todayDateNumber = 0;
+  String todayDate = "";
 
   List data = new List();
-
+  bool checkBoxState = true;
   Future getSWData() async {
+    // print(roomId);
     var res = await http.get(Uri.encodeFull(url + roomId),
         headers: {"Accept": "application/json"});
-
     setState(() {
       var resBody = json.decode(res.body);
       data = resBody;
@@ -47,7 +63,20 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
           : "Unknown";
       _roomInfo.floor =
           data[0]["floor"] != null ? data[0]["floor"].toString() : "Unknown";
-      _roomInfo.booked = data[0]["booked"];
+      _roomInfo.bookings = data[0]["bookings"];
+      changeDate();
+    });
+  }
+
+  void changeDate() {
+    setState(() {
+      // Change the date to search for
+      todayDate =
+          new DateFormat.yMd().format(now.add(Duration(days: todayDateNumber)));
+
+      // Clear all checkboxes
+      timeslotsSelectedWithCheckboxes = new List<bool>.filled(15, false);
+      _roomInfo.checkedBookings = new List<bool>.filled(15, false);
     });
   }
 
@@ -162,39 +191,203 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
             ),
           ),
           new Center(
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  child: new IconButton(
+                    icon: new Icon(Icons.arrow_left),
+                    onPressed: () {
+                      this.setState(() {
+                        if (todayDateNumber > 0) {
+                          todayDateNumber = todayDateNumber - 1;
+                          changeDate();
+                        }
+                      });
+                    },
+                  ),
+                ),
+                new Container(
+                  child: new RichText(
+                    text: new TextSpan(
+                      text: todayDateNumber == 0
+                          ? "Rooster van vandaag"
+                          : "Rooster",
+                      style: new TextStyle(color: Colors.white, fontSize: 28.0),
+                    ),
+                  ),
+                ),
+                new Expanded(
+                  child: new IconButton(
+                    icon: new Icon(Icons.arrow_right),
+                    onPressed: () {
+                      this.setState(() {
+                        if (todayDateNumber < 7) {
+                          todayDateNumber = todayDateNumber + 1;
+                          changeDate();
+                        }
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+          new Center(
             child: new Container(
-              padding: new EdgeInsets.all(5.0),
+              padding: new EdgeInsets.only(top: 10.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: "Rooster",
-                  style: new TextStyle(color: Colors.white, fontSize: 28.0),
+                  text: todayDate,
+                  style: new TextStyle(color: Colors.white, fontSize: 15.0),
                 ),
               ),
             ),
           ),
           new Expanded(
             child: ListView.builder(
-              itemCount: _roomInfo.booked.length,
+              padding: EdgeInsets.zero,
+              itemCount: _timeSlotInfo.timeslotsOfADayStarting
+                  .length, // 1 day consists of 15 time blocks
               itemBuilder: (BuildContext context, int index) {
-                return new ListTile(
-                  leading: new CircleAvatar(
-                    child: new Text(_roomInfo.booked[index]["duration"] != null
-                        ? _roomInfo.booked[index]["duration"].toString() + "u"
-                        : "?"),
-                    backgroundColor: Colors.blueAccent,
-                  ),
-                  title: new Text(
-                    "Klas: ${_roomInfo.booked[index]["class"]}",
-                    style: new TextStyle(color: Colors.white),
-                  ),
-                  subtitle: new Text(
-                    'Lescode: ${_roomInfo.booked[index]["subjectCode"]}',
-                    style: new TextStyle(color: Colors.white70),
-                  ),
-                );
+                {
+                  // ListTile to display when it is able to be booked:
+                  ListTile bookableItem = new ListTile(
+                    leading: new CircleAvatar(
+                      child: new Text((index + 1).toString()),
+                      backgroundColor: Colors.blueAccent,
+                    ),
+                    title: new Row(
+                      children: <Widget>[
+                        new Expanded(
+                            child: new Text("Beschikbaar",
+                                style: new TextStyle(color: Colors.white))),
+                        new Checkbox(
+                          value: timeslotsSelectedWithCheckboxes[index],
+                          onChanged: (bool value) {
+                            this.setState(() {
+                              timeslotsSelectedWithCheckboxes[index] = value;
+                              _roomInfo.checkedBookings[index] = value;
+                            });
+                          },
+                        )
+                      ],
+                    ),
+                    subtitle: new Text(
+                      "Dit tijdblok is vrij om te reserveren",
+                      style: new TextStyle(color: Colors.white70),
+                    ),
+                    onTap: () {
+                      this.setState(() {
+                        timeslotsSelectedWithCheckboxes[index] =
+                            !timeslotsSelectedWithCheckboxes[index];
+                        _roomInfo.checkedBookings[index] =
+                            !_roomInfo.checkedBookings[index];
+                      });
+                    },
+                  );
+
+                  // Check if current day and timeslot can be found in the bookings
+                  bool foundReserved = false;
+                  if (index <
+                      _timeSlotInfo.timeslotsOfADayStarting.length - 1) {
+                    int selectedTimeHour = int.parse(_timeSlotInfo
+                        .timeslotsOfADayStarting[index]
+                        .toString()
+                        .split(":")[0]);
+                    int selectedTimeMinute = int.parse(_timeSlotInfo
+                        .timeslotsOfADayStarting[index]
+                        .toString()
+                        .split(":")[1]);
+
+                    for (final item in _roomInfo.bookings) {
+                      DateTime startDate =
+                          DateTime.parse(item["dates"][0]["start"].toString());
+                      DateTime endDate =
+                          DateTime.parse(item["dates"][0]["end"].toString());
+                      String retrievedDate =
+                          new DateFormat.yMd().format(startDate);
+
+                      // Check if current booking is from today and also check if
+                      // the time is this timeslot, than display it is reserved.
+                      if (
+                          // Booking is from today
+                          retrievedDate == todayDate &&
+                              // Booking is between this timeslot
+                              ((selectedTimeHour * 60) + selectedTimeMinute) >=
+                                  ((startDate.hour * 60) + startDate.minute) &&
+                              ((selectedTimeHour * 60) + selectedTimeMinute) <=
+                                  ((endDate.hour * 60) + endDate.minute)) {
+                        foundReserved = true;
+                        break;
+                      }
+                    }
+                  }
+
+                  if (foundReserved) {
+                    return new ListTile(
+                      leading: new CircleAvatar(
+                        child: new Text((index + 1).toString()),
+                        backgroundColor: Colors.blueAccent,
+                      ),
+                      title: new Text(
+                        "GERESERVEERD",
+                        style: new TextStyle(color: Colors.white),
+                      ),
+                      subtitle: new Text(
+                        "Dit tijdblok is al gereserveerd",
+                        style: new TextStyle(color: Colors.white70),
+                      ),
+                    );
+                  } else {
+                    return bookableItem;
+                  }
+                }
               },
             ),
           ),
+          new Container(
+            height: 50.0,
+            width: double.infinity,
+            child: new FlatButton(
+              onPressed: () {
+                if (timeslotsSelectedWithCheckboxes.where((x) => x).length >
+                    0) {
+                  Navigator.push(
+                    context,
+                    new MyCustomRoute(
+                      builder: (_) => new RoomBookingPage(roomInfo: _roomInfo),
+                    ),
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (_) => new AlertDialog(
+                          title: new Text("Foutmelding"),
+                          content: new SingleChildScrollView(
+                            child: new ListBody(
+                              children: <Widget>[
+                                new Text(
+                                    'U dient minstens 1 tijdblok te selecteren!')
+                              ],
+                            ),
+                          ),
+                          actions: <Widget>[
+                            new FlatButton(
+                              child: new Text('OK'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        ),
+                  );
+                }
+              },
+              child: new Text("Doorgaan naar reservering"),
+              color: Colors.lightBlue,
+              textColor: Colors.white,
+            ),
+          )
         ],
       ),
     );

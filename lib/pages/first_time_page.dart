@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'building_selection_page.dart';
 
 class FirstTimePage extends StatelessWidget {
   @override
@@ -78,7 +77,7 @@ class FirstTimePage extends StatelessWidget {
                                   onPressed: () {
                                     showDialog(
                                       context: context,
-                                      child: new AlertDialog(
+                                      builder: (_) => new AlertDialog(
                                         title: new Text(
                                             "Probeer het later opnieuw"),
                                         content: new SingleChildScrollView(

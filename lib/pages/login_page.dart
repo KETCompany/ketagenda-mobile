@@ -18,6 +18,13 @@ class LoginPage extends StatelessWidget {
                 children: <Widget>[
                   new Column(
                     children: <Widget>[
+                      new Container(
+                        height: 150.0,
+                        child: new Hero(
+                          tag: 'imageHero',
+                          child: new Image.asset("assets/logohr.png"),
+                        ),
+                      ),
                       new RichText(
                         text: new TextSpan(
                           text: "KET Agenda",
@@ -34,13 +41,6 @@ class LoginPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  new Container(
-                    height: 150.0,
-                    child: new Hero(
-                      tag: 'imageHero',
-                      child: new Image.asset("assets/logohr.png"),
-                    ),
-                  )
                 ],
               ),
             ),
@@ -48,7 +48,7 @@ class LoginPage extends StatelessWidget {
         ),
         new Expanded(
           child: new Material(
-            color: Colors.red,
+            color: Colors.redAccent[700],
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
