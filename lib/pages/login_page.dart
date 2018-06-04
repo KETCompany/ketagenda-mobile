@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'first_time_page.dart';
 import '../components/login_button.dart';
 
 class LoginPage extends StatelessWidget {
@@ -54,7 +53,7 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton(new FirstTimePage()),
+                new LoginButton(),
                 new Container(
                   padding: new EdgeInsets.all(5.0),
                   width: double.infinity,
