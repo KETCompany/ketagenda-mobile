@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'building_selection_page.dart';
 
 class FirstTimePage extends StatelessWidget {
   @override
@@ -19,7 +18,10 @@ class FirstTimePage extends StatelessWidget {
                     children: <Widget>[
                       new Container(
                         height: 100.0,
-                        child: new Image.asset("assets/logohr.png"),
+                        child: new Hero(
+                          tag: 'imageHero',
+                          child: new Image.asset("assets/logohr.png"),
+                        ),
                       ),
                       new RichText(
                         text: new TextSpan(
@@ -52,12 +54,9 @@ class FirstTimePage extends StatelessWidget {
                                   splashColor: Colors.red,
                                   color: Colors.redAccent[700],
                                   onPressed: () {
-                                    Navigator.push(
+                                    Navigator.pushNamed(
                                       context,
-                                      new MaterialPageRoute(
-                                        builder: (context) =>
-                                            new BuildingSelectionPage(),
-                                      ),
+                                      "/BuildingSelectionPage"
                                     );
                                   },
                                   icon: new Icon(Icons.thumb_down),
@@ -75,7 +74,33 @@ class FirstTimePage extends StatelessWidget {
                                 child: new IconButton(
                                   splashColor: Colors.green,
                                   color: Colors.greenAccent[700],
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      builder: (_) => new AlertDialog(
+                                        title: new Text(
+                                            "Probeer het later opnieuw"),
+                                        content: new SingleChildScrollView(
+                                          child: new ListBody(
+                                            children: <Widget>[
+                                              new Text(
+                                                  'Op dit moment is er nog geen uitleg beschikbaar.'),
+                                              new Text(
+                                                  'Probeer het later opnieuw.'),
+                                            ],
+                                          ),
+                                        ),
+                                        actions: <Widget>[
+                                          new FlatButton(
+                                            child: new Text('OK'),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
                                   icon: new Icon(Icons.thumb_up),
                                 ),
                               ),

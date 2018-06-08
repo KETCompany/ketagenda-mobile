@@ -1,0 +1,59 @@
+{
+  "project_info": {
+    "project_number": "92969696879",
+    "firebase_url": "https://ketagenda-d2d55.firebaseio.com",
+    "project_id": "ketagenda-d2d55",
+    "storage_bucket": "ketagenda-d2d55.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:92969696879:android:e63217ba96023610",
+        "android_client_info": {
+          "package_name": "com.example.ketagenda"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "92969696879-2hade78ac6foaf59janf045imc11u688.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ketagenda",
+            "certificate_hash": "3e39d5d5b328d049f2423210208c46049c78b639"
+          }
+        },
+        {
+          "client_id": "92969696879-fj3u4fe1k1hjg6rg64t9iulj38qf19ub.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "92969696879-fj3u4fe1k1hjg6rg64t9iulj38qf19ub.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA-cv6mmnUMkTIQm29y6Lz1um19DhmqgA0"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "92969696879-fj3u4fe1k1hjg6rg64t9iulj38qf19ub.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

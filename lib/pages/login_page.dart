@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'first_time_page.dart';
-
 import '../components/login_button.dart';
-import '../components/qr_scanner.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -21,6 +17,13 @@ class LoginPage extends StatelessWidget {
                 children: <Widget>[
                   new Column(
                     children: <Widget>[
+                      new Container(
+                        height: 150.0,
+                        child: new Hero(
+                          tag: 'imageHero',
+                          child: new Image.asset("assets/logohr.png"),
+                        ),
+                      ),
                       new RichText(
                         text: new TextSpan(
                           text: "KET Agenda",
@@ -37,10 +40,6 @@ class LoginPage extends StatelessWidget {
                       ),
                     ],
                   ),
-                  new Container(
-                    height: 150.0,
-                    child: new Image.asset("assets/logohr.png"),
-                  )
                 ],
               ),
             ),
@@ -48,14 +47,25 @@ class LoginPage extends StatelessWidget {
         ),
         new Expanded(
           child: new Material(
-            color: Colors.red,
+            color: Colors.redAccent[700],
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
-                new LoginButton("Inloggen", new FirstTimePage()),
-                new QRScanner()
+                new LoginButton(),
+                new Container(
+                  padding: new EdgeInsets.all(5.0),
+                  width: double.infinity,
+                  child: new FlatButton(
+                    child: new Text("Scan QR code"),
+                    color: Colors.lightBlue,
+                    textColor: Colors.white,
+                    onPressed: () {
+                      Navigator.of(context).pushNamed('/QRPage');
+                    },
+                  ),
+                ),
               ],
             ),
           ),
