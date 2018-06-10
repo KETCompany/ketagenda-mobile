@@ -1,4 +1,5 @@
 class RoomInfo {
+  String id = "...";
   String name = "...";
   String type = "...";
   String location = "...";

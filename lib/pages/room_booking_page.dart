@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../components/room_info.dart';
 import '../globals.dart' as globals;
+import 'package:http/http.dart' as http;
 
 class RoomBookingPage extends StatefulWidget {
   RoomBookingPage({Key key, this.roomInfo}) : super(key: key);
@@ -39,9 +41,33 @@ class _RoomBookingPage extends State<RoomBookingPage> {
     });
   }
 
+  bool postIsAccepted = false;
+  // Post to
+  Future postData() async {
+    //<Map>
+    roomInfo.bookings.add({
+      "group": "studenten",
+      "name": "Student Reservering",
+      "tutor": globals.user.displayName,
+      "dates": "TEST"
+    });
+    var idAndBooking = {"roomId": roomInfo.id, "bookings": roomInfo.bookings};
+    String idAndBookingJSON = json.encode(idAndBooking);
+    http.Response res = await http.post(
+        "http://keta.superict.nl/api/rooms/reservation",
+        body: idAndBookingJSON);
+
+    if (res.body.toLowerCase() == "accepted") {
+      setState(() {
+        postIsAccepted = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
       backgroundColor: Colors.redAccent[700],
       body: new Column(
         children: <Widget>[
@@ -108,11 +134,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("K",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.name),
                             subtitle: new Text("Kamer"),
                           ),
@@ -125,11 +146,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("T",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.type),
                             subtitle: new Text("Type"),
                           ),
@@ -142,11 +158,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("G",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.location),
                             subtitle: new Text("Locatie"),
                           ),
@@ -159,11 +170,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("V",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.floor),
                             subtitle: new Text("Verdiepingsnummer"),
                           ),
@@ -201,7 +207,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.perm_identity),
+                            leading: const Icon(Icons.email),
                             title: new Text(globals.user.email),
                             subtitle: new Text("E-Mailadres"),
                           ),
@@ -242,28 +248,32 @@ class _RoomBookingPage extends State<RoomBookingPage> {
             width: double.infinity,
             child: new FlatButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => new AlertDialog(
-                        title: new Text("Probeer het later opnieuw"),
-                        content: new SingleChildScrollView(
-                          child: new ListBody(
-                            children: <Widget>[
-                              new Text(
-                                  'Op dit moment kunt u nog niet reserveren.')
+                postData().then((_) => (showDialog(
+                      context: context,
+                      builder: (_) => new AlertDialog(
+                            title: new Text(this.postIsAccepted
+                                ? "Gelukt!"
+                                : "Probeer het later opnieuw"),
+                            content: new SingleChildScrollView(
+                              child: new ListBody(
+                                children: <Widget>[
+                                  new Text(this.postIsAccepted
+                                      ? "Het is gelukt, jouw reservering staat nu vast! Wij hebben een e-mail verstuurd met de bevestiging."
+                                      : "Op dit moment kunt u nog niet reserveren.")
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              new FlatButton(
+                                child: new Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
                             ],
                           ),
-                        ),
-                        actions: <Widget>[
-                          new FlatButton(
-                            child: new Text('OK'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      ),
-                );
+                    )));
+
                 // Navigator.push(
                 //   context,
                 //   new MyCustomRoute(

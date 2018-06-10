@@ -55,10 +55,12 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
     setState(() {
       Map roomMap = json.decode(res.body);
       var room = new Room.fromJson(roomMap);
+      _roomInfo.id = roomId;
       _roomInfo.name = room.name;
       _roomInfo.type = room.type;
       _roomInfo.location = room.location;
       _roomInfo.floor = room.floor;
+      _roomInfo.bookings = room.bookings;
     });
   }
 
@@ -77,6 +79,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
       backgroundColor: Colors.redAccent[700],
       body: new Column(
         children: <Widget>[
