@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
 import '../components/room_info.dart';
+import '../components/room.dart';
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
@@ -45,26 +46,19 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   int todayDateNumber = 0;
   String todayDate = "";
 
-  List data = new List();
   bool checkBoxState = true;
   Future getSWData() async {
+    changeDate();
     // print(roomId);
     var res = await http.get(Uri.encodeFull(url + roomId),
         headers: {"Accept": "application/json"});
     setState(() {
-      var resBody = json.decode(res.body);
-      data = resBody;
-      _roomInfo.name =
-          data[0]["name"] != null ? data[0]["name"].toString() : "Unknown";
-      _roomInfo.type =
-          data[0]["type"] != null ? data[0]["type"].toString() : "Unknown";
-      _roomInfo.location = data[0]["location"] != null
-          ? data[0]["location"].toString()
-          : "Unknown";
-      _roomInfo.floor =
-          data[0]["floor"] != null ? data[0]["floor"].toString() : "Unknown";
-      _roomInfo.bookings = data[0]["bookings"];
-      changeDate();
+      Map roomMap = json.decode(res.body);
+      var room = new Room.fromJson(roomMap);
+      _roomInfo.name = room.name;
+      _roomInfo.type = room.type;
+      _roomInfo.location = room.location;
+      _roomInfo.floor = room.floor;
     });
   }
 
@@ -123,7 +117,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               padding: new EdgeInsets.all(5.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: "Gegevens",
+                  text: "Gegevens over deze kamer",
                   style: new TextStyle(color: Colors.white, fontSize: 28.0),
                 ),
               ),
@@ -142,7 +136,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.name),
                             subtitle: new Text("Kamer"),
                           ),
@@ -154,7 +147,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.type),
                             subtitle: new Text("Type"),
                           ),
@@ -166,7 +158,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.location),
                             subtitle: new Text("Locatie"),
                           ),
@@ -178,7 +169,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.floor),
                             subtitle: new Text("Verdiepingsnummer"),
                           ),
