@@ -1,8 +1,7 @@
-# ketagenda
+# KETAgenda
 
-A new Flutter project.
+Hogeschool Rotterdam - Reserveer systeem
 
 ## Getting Started
 
-For help getting started with Flutter, view our online
-[documentation](https://flutter.io/).
+Na het inloggen met jouw HR school account kun je ruimte reserveren.
