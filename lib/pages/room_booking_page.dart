@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../components/room_info.dart';
+import '../globals.dart' as globals;
 
 class RoomBookingPage extends StatefulWidget {
   RoomBookingPage({Key key, this.roomInfo}) : super(key: key);
@@ -188,7 +189,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         children: <Widget>[
                           new ListTile(
                             leading: const Icon(Icons.perm_identity),
-                            title: new Text("{VOORNAAM} {ACHTERNAAM}"),
+                            title: new Text(globals.user.displayName),
                             subtitle: new Text("Naam"),
                           ),
                         ],
@@ -201,7 +202,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         children: <Widget>[
                           new ListTile(
                             leading: const Icon(Icons.perm_identity),
-                            title: new Text("{EMAIL}"),
+                            title: new Text(globals.user.email),
                             subtitle: new Text("E-Mailadres"),
                           ),
                         ],
