@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import '../globals.dart' as globals;
 
 class LoginButton extends StatefulWidget {
   @override
@@ -21,7 +22,11 @@ class _LoginButton extends State<LoginButton> {
     await _googleSignIn.signOut();
     await _googleSignIn.signIn();
     if (_googleSignIn.currentUser.email != "") {
-      if(_googleSignIn.currentUser.email.split("@")[1] == "hr.nl"){
+      if (_googleSignIn.currentUser.email.split("@")[1] == "hr.nl") {
+        globals.user.displayName = _googleSignIn.currentUser.displayName;
+        globals.user.email = _googleSignIn.currentUser.email;
+        // TODO: Check if its the first time logging in through API
+        // If thats the case, show /FirstTimePage. Else continue to rooms overview.
         Navigator.of(context).pushNamed('/FirstTimePage');
       }
     }
