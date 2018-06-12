@@ -44,18 +44,18 @@ class _RoomBookingPage extends State<RoomBookingPage> {
   bool postIsAccepted = false;
   // Post to
   Future postData() async {
-    //<Map>
     roomInfo.bookings.add({
       "group": "studenten",
       "name": "Student Reservering",
       "tutor": globals.user.displayName,
-      "dates": "TEST"
+      "dates": [{"start": "2018-05-21T06:30:00.000Z", "end": "2018-05-21T20:00:00.000Z"}]
     });
     var idAndBooking = {"roomId": roomInfo.id, "bookings": roomInfo.bookings};
     String idAndBookingJSON = json.encode(idAndBooking);
     http.Response res = await http.post(
         "http://keta.superict.nl/api/rooms/reservation",
         body: idAndBookingJSON);
+    roomInfo.bookings.removeLast();
 
     if (res.body.toLowerCase() == "accepted") {
       setState(() {

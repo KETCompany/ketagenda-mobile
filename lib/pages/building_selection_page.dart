@@ -41,10 +41,20 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: new AppBar(title: new Text("Terug gaan naar vorige pagina"), actions: <Widget>[
+        new IconButton(
+              icon: const Icon(Icons.exit_to_app),
+              tooltip: 'Uitloggen',
+              onPressed: () {
+                Navigator.of(context).pushNamed('/');
+              },
+            ),
+      ],),
       backgroundColor: Colors.redAccent[700],
       body: new Column(
         children: <Widget>[
-          new Expanded(
+          new Container(
+            height: 200.0,
             //Top white part
             child: new Material(
               color: Colors.white,
