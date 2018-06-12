@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../plugins/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
+import 'package:KETAgenda/globals.dart' as globals; 
 
 class QRPage extends StatefulWidget {
   @override
@@ -14,9 +15,7 @@ class QRPage extends StatefulWidget {
 class _QRPage extends State<QRPage> {
   _QRPage({this.barcode});
   String barcode;
-
-  //Get info from room number (result of QR code scan)
-  String url = "http://keta.superict.nl/api/rooms/";
+  String url = globals.baseAPIURL + "/api/rooms/";
   List data;
   String pageTitle = "Laden..";
   TextEditingController _controllerRoomName;

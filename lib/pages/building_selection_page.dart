@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'room_details_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:KETAgenda/globals.dart' as globals; 
 
 class BuildingSelectionPage extends StatefulWidget {
   @override
@@ -25,7 +26,7 @@ class MyCustomRoute<T> extends MaterialPageRoute<T> {
 
 class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   //Get info from room number (result of QR code scan)
-  String url = 'http://keta.superict.nl/api/rooms?name=';
+  String url = globals.baseAPIURL + '/api/rooms?name=';
   List data = new List();
 
   Future getSWData() async {
