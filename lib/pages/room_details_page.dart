@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
 import '../components/room_info.dart';
 import '../components/room.dart';
+import 'package:KETAgenda/globals.dart' as globals; 
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
@@ -32,9 +33,7 @@ class RoomDetailsPage extends StatefulWidget {
 class _RoomDetailsPage extends State<RoomDetailsPage> {
   _RoomDetailsPage(this.roomId);
   final String roomId;
-
-  //Get info from room number (result of QR code scan)
-  String url = 'http://keta.superict.nl/api/rooms/';
+  String url = globals.baseAPIURL + '/api/rooms/';
 
   //Controllers
   RoomInfo _roomInfo = new RoomInfo();

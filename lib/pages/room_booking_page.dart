@@ -16,9 +16,7 @@ class RoomBookingPage extends StatefulWidget {
 class _RoomBookingPage extends State<RoomBookingPage> {
   _RoomBookingPage(this.roomInfo);
   final RoomInfo roomInfo;
-
-  //Get info from room number (result of QR code scan)
-  String url = 'http://keta.superict.nl/api/rooms/';
+  String url = globals.baseAPIURL + '/api/rooms/';
 
   //Controllers
   TimeSlotsInfo _timeSlotsInfo = new TimeSlotsInfo();
