@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_driver/driver_extension.dart';
 
 import './pages/login_page.dart';
 import 'pages/building_selection_page.dart';
@@ -23,6 +24,7 @@ class MyCustomRoute<T> extends MaterialPageRoute<T> {
 }
 
 void main() {
+  enableFlutterDriverExtension();
   runApp(new MaterialApp(
     title: "KET Agenda",
     onGenerateRoute: (RouteSettings settings) {
