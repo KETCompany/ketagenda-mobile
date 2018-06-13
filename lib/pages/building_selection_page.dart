@@ -25,7 +25,6 @@ class MyCustomRoute<T> extends MaterialPageRoute<T> {
 }
 
 class _BuildingSelectionPage extends State<BuildingSelectionPage> {
-  //Get info from room number (result of QR code scan)
   String url = globals.baseAPIURL + '/api/rooms?name=';
   List data = new List();
 
