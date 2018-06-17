@@ -22,7 +22,7 @@ class MyCustomRoute<T> extends MaterialPageRoute<T> {
   }
 }
 
-void main() {
+void main() async {
   enableFlutterDriverExtension();
   runApp(new MaterialApp(
     title: "KET Agenda",
@@ -46,11 +46,5 @@ void main() {
           );
         }
       },
-    // routes: <String, WidgetBuilder> {
-    //     "/": (BuildContext context) => new LoginPage(),
-    //     "/QRPage": (BuildContext context) => new QRPage(),
-    //     "/FirstTimePage": (BuildContext context) => new FirstTimePage(),
-    //     "/BuildingSelectionPage": (BuildContext context) => new BuildingSelectionPage(),
-    //   },
   ));
 }

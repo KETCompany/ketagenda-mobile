@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:KETAgenda/models/timeslots.dart';
 import 'package:flutter/material.dart';
 import '../components/room_info.dart';
 import '../globals.dart' as globals;
@@ -273,7 +274,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                                 children: <Widget>[
                                   new Text(this.postIsAccepted
                                       ? "Het is gelukt, jouw reservering staat nu vast! Wij hebben een e-mail verstuurd met de bevestiging."
-                                      : "Op dit moment kunt u nog niet reserveren.")
+                                      : "Op dit moment kunt u niet reserveren.")
                                 ],
                               ),
                             ),
