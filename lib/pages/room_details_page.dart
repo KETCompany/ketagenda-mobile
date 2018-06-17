@@ -54,7 +54,9 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
     var res = await http.get(Uri.encodeFull(url + roomId),
         headers: {"Accept": "application/json"});
     setState(() {
-      List bookingsList = json.decode(resBookings.body)['bookings'];
+      List bookingsList = json.decode(resBookings.body)['bookings'] != null
+          ? json.decode(resBookings.body)['bookings']
+          : new List();
       Map roomMap = json.decode(res.body);
       // var bookings = new Bookings.fromJson(bookingsList);
       var room = new Room.fromJson(roomMap);
@@ -70,7 +72,9 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   void changeDate(addDay) {
     setState(() {
       // Change the date to search for
-      todayDate = addDay ? todayDate.add(Duration(days: 1)) : todayDate.add(Duration(days: -1));
+      todayDate = addDay
+          ? todayDate.add(Duration(days: 1))
+          : todayDate.add(Duration(days: -1));
 
       // Clear all checkboxes
       timeslotsSelectedWithCheckboxes = new List<bool>.filled(15, false);
@@ -257,15 +261,20 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                     title: new Row(
                       children: <Widget>[
                         new Expanded(
-                            child: new Text(_timeSlotInfo.timeslotsOfADayStarting[index] + " tot " + _timeSlotInfo.timeslotsOfADayEnding[index],
+                            child: new Text(
+                                _timeSlotInfo.timeslotsOfADayStarting[index] +
+                                    " tot " +
+                                    _timeSlotInfo.timeslotsOfADayEnding[index],
                                 style: new TextStyle(color: Colors.white))),
                         new Checkbox(
                           value: timeslotsSelectedWithCheckboxes[index],
                           onChanged: (bool value) {
-                            this.setState(() {
-                              timeslotsSelectedWithCheckboxes[index] = value;
-                              _roomInfo.checkedBookings[index] = value;
-                            });
+                            if (_roomInfo.id != "") {
+                              this.setState(() {
+                                timeslotsSelectedWithCheckboxes[index] = value;
+                                _roomInfo.checkedBookings[index] = value;
+                              });
+                            }
                           },
                         )
                       ],
@@ -275,19 +284,20 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       style: new TextStyle(color: Colors.white70),
                     ),
                     onTap: () {
-                      this.setState(() {
-                        timeslotsSelectedWithCheckboxes[index] =
-                            !timeslotsSelectedWithCheckboxes[index];
-                        _roomInfo.checkedBookings[index] =
-                            !_roomInfo.checkedBookings[index];
-                      });
+                      if (_roomInfo.id != "") {
+                        this.setState(() {
+                          timeslotsSelectedWithCheckboxes[index] =
+                              !timeslotsSelectedWithCheckboxes[index];
+                          _roomInfo.checkedBookings[index] =
+                              !_roomInfo.checkedBookings[index];
+                        });
+                      }
                     },
                   );
 
                   // Check if current day and timeslot can be found in the bookings
                   bool foundReserved = false;
-                  if (index <
-                      _timeSlotInfo.timeslotsOfADayStarting.length) {
+                  if (index < _timeSlotInfo.timeslotsOfADayStarting.length) {
                     print("Trying to find reserved timeslots..");
                     int selectedTimeStartHour = int.parse(_timeSlotInfo
                         .timeslotsOfADayStarting[index]
@@ -301,20 +311,30 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         .timeslotsOfADayEnding[index]
                         .toString()
                         .split(":")[0]);
-                    
+
                     int selectedTimeEndMinute = int.parse(_timeSlotInfo
                         .timeslotsOfADayEnding[index]
                         .toString()
                         .split(":")[1]);
-                    print("selectedTimeStartHour: " + selectedTimeStartHour.toString());
-                    print("selectedTimeStartMinute: " + selectedTimeStartMinute.toString());
-                    print("selectedTimeEndHour: " + selectedTimeEndHour.toString());
-                    print("selectedTimeStartMinute: " + selectedTimeEndMinute.toString());
+                    print("selectedTimeStartHour: " +
+                        selectedTimeStartHour.toString());
+                    print("selectedTimeStartMinute: " +
+                        selectedTimeStartMinute.toString());
+                    print("selectedTimeEndHour: " +
+                        selectedTimeEndHour.toString());
+                    print("selectedTimeStartMinute: " +
+                        selectedTimeEndMinute.toString());
 
                     for (final item in _roomInfo.bookings) {
                       // Timezone is by default UTC, so add 2 hours to make up with Amsterdam.
-                      DateTime startDate = DateTime.parse(item["start"]).toUtc().add(Duration(hours: 2));
-                      DateTime endDate = DateTime.parse(item["end"]).toUtc().add(Duration(hours: 2));
+                      DateTime startDate = DateTime
+                          .parse(item["start"])
+                          .toUtc()
+                          .add(Duration(hours: 2));
+                      DateTime endDate = DateTime
+                          .parse(item["end"])
+                          .toUtc()
+                          .add(Duration(hours: 2));
                       // DEL? String retrievedDate =
                       //     new DateFormat.yMd().format(startDate);
                       print("Startdate: " + startDate.toString());
@@ -327,23 +347,22 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       // print("Retrieveddate:  " + retrievedDate + " - todayDate: " + todayDate);
                       // print("Selectedtimehour*60: " + (selectedTimeHour*60).toString());
                       // print("Selectedtimeminute: " + (selectedTimeHour*60).toString());
-                      
+
                       String formattedStart =
                           new DateFormat.yMMMd().format(startDate);
                       String formattedToday =
                           new DateFormat.yMMMd().format(todayDate);
-                      print("FormattedStart: " +
-                          formattedStart +
-                          " and formattedtoday: " +
-                          formattedToday);
-                           if(item == _roomInfo.bookings[10] && selectedTimeStartHour == 21){
-                      }
                       if (formattedStart == formattedToday) {
-                       
                         // Booking is from today
                         print("****Booking is from today!****");
-                        print('TIMESLOT START: ' + selectedTimeStartHour.toString() + ":" + selectedTimeStartMinute.toString());
-                        print('TIMESLOT END: ' + selectedTimeEndHour.toString() + ":" + selectedTimeEndMinute.toString());
+                        print('TIMESLOT START: ' +
+                            selectedTimeStartHour.toString() +
+                            ":" +
+                            selectedTimeStartMinute.toString());
+                        print('TIMESLOT END: ' +
+                            selectedTimeEndHour.toString() +
+                            ":" +
+                            selectedTimeEndMinute.toString());
 
                         print((startDate.hour).toString());
                         print((startDate.minute).toString());
@@ -351,10 +370,12 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         print((endDate.hour).toString());
                         print((endDate.minute).toString());
                         print("****END Booking is from today!****");
-                        
-                        if (((selectedTimeStartHour * 60) + selectedTimeStartMinute) >=
+
+                        if (((selectedTimeStartHour * 60) +
+                                    selectedTimeStartMinute) >=
                                 ((startDate.hour * 60) + startDate.minute) &&
-                            ((selectedTimeEndHour * 60) + selectedTimeEndMinute) <=
+                            ((selectedTimeEndHour * 60) +
+                                    selectedTimeEndMinute) <=
                                 ((endDate.hour * 60) + endDate.minute)) {
                           // Booking is between this timeslot
                           print(

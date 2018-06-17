@@ -1,11 +1,11 @@
 import 'package:intl/intl.dart';
 
 class RoomInfo {
-  String id = "...";
-  String name = "...";
-  String type = "...";
-  String location = "...";
-  String floor = "...";
+  String id = "";
+  String name = "";
+  String type = "";
+  String location = "";
+  String floor = "";
   List bookings = new List();
   List checkedBookings =
       new List<bool>.filled(15, false); // Checked items will be saved here
