@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
 import '../components/room_info.dart';
 import '../components/room.dart';
-import 'package:KETAgenda/globals.dart' as globals; 
+import 'package:KETAgenda/globals.dart' as globals;
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
@@ -43,35 +43,43 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   // Date of today
   DateTime now = new DateTime.now();
   int todayDateNumber = 0;
-  String todayDate = "";
+  DateTime todayDate = new DateTime.now();
 
   bool checkBoxState = true;
   Future getSWData() async {
-    changeDate();
-    // print(roomId);
+    // changeDate();
+    // print(url + roomId);
+    var resBookings =
+        await http.get(Uri.encodeFull(url + roomId + "?populate"));
     var res = await http.get(Uri.encodeFull(url + roomId),
         headers: {"Accept": "application/json"});
     setState(() {
+      List bookingsList = json.decode(resBookings.body)['bookings'];
       Map roomMap = json.decode(res.body);
+      // var bookings = new Bookings.fromJson(bookingsList);
       var room = new Room.fromJson(roomMap);
-      _roomInfo.id = roomId;
+      _roomInfo.id = room.id;
       _roomInfo.name = room.name;
       _roomInfo.type = room.type;
       _roomInfo.location = room.location;
       _roomInfo.floor = room.floor;
-      _roomInfo.bookings = room.bookings;
+      _roomInfo.bookings = bookingsList;
+      print("Booking list:");
+      print(bookingsList[3]);
     });
   }
 
-  void changeDate() {
+  void changeDate(addDay) {
     setState(() {
       // Change the date to search for
-      todayDate =
-          new DateFormat.yMd().format(now.add(Duration(days: todayDateNumber)));
+      todayDate = addDay ? todayDate.add(Duration(days: 1)) : todayDate.add(Duration(days: -1));
 
       // Clear all checkboxes
       timeslotsSelectedWithCheckboxes = new List<bool>.filled(15, false);
       _roomInfo.checkedBookings = new List<bool>.filled(15, false);
+
+      // Save last date in case user goes to booking page
+      _roomInfo.chosenDateToBook = new DateFormat('d/M/y').format(todayDate);
     });
   }
 
@@ -192,7 +200,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       this.setState(() {
                         if (todayDateNumber > 0) {
                           todayDateNumber = todayDateNumber - 1;
-                          changeDate();
+                          changeDate(false);
                         }
                       });
                     },
@@ -215,7 +223,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       this.setState(() {
                         if (todayDateNumber < 7) {
                           todayDateNumber = todayDateNumber + 1;
-                          changeDate();
+                          changeDate(true);
                         }
                       });
                     },
@@ -229,7 +237,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               padding: new EdgeInsets.only(top: 10.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: todayDate,
+                  text: new DateFormat('d/M/y').format(todayDate),
                   style: new TextStyle(color: Colors.white, fontSize: 15.0),
                 ),
               ),
@@ -251,7 +259,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                     title: new Row(
                       children: <Widget>[
                         new Expanded(
-                            child: new Text("Beschikbaar",
+                            child: new Text(_timeSlotInfo.timeslotsOfADayStarting[index] + " tot " + _timeSlotInfo.timeslotsOfADayEnding[index],
                                 style: new TextStyle(color: Colors.white))),
                         new Checkbox(
                           value: timeslotsSelectedWithCheckboxes[index],
@@ -282,35 +290,79 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                   bool foundReserved = false;
                   if (index <
                       _timeSlotInfo.timeslotsOfADayStarting.length - 1) {
-                    int selectedTimeHour = int.parse(_timeSlotInfo
+                    print("Trying to find reserved timeslots..");
+                    int selectedTimeStartHour = int.parse(_timeSlotInfo
                         .timeslotsOfADayStarting[index]
                         .toString()
                         .split(":")[0]);
-                    int selectedTimeMinute = int.parse(_timeSlotInfo
+                    int selectedTimeStartMinute = int.parse(_timeSlotInfo
                         .timeslotsOfADayStarting[index]
                         .toString()
                         .split(":")[1]);
+                    int selectedTimeEndHour = int.parse(_timeSlotInfo
+                        .timeslotsOfADayEnding[index]
+                        .toString()
+                        .split(":")[0]);
+                    
+                    int selectedTimeEndMinute = int.parse(_timeSlotInfo
+                        .timeslotsOfADayEnding[index]
+                        .toString()
+                        .split(":")[1]);
+                    print("selectedTimeStartHour: " + selectedTimeStartHour.toString());
+                    print("selectedTimeStartMinute: " + selectedTimeStartMinute.toString());
+                    print("selectedTimeEndHour: " + selectedTimeEndHour.toString());
+                    print("selectedTimeStartMinute: " + selectedTimeEndMinute.toString());
 
                     for (final item in _roomInfo.bookings) {
-                      DateTime startDate =
-                          DateTime.parse(item["dates"][0]["start"].toString());
-                      DateTime endDate =
-                          DateTime.parse(item["dates"][0]["end"].toString());
-                      String retrievedDate =
-                          new DateFormat.yMd().format(startDate);
+                      // Timezone is by default UTC, so add 2 hours to make up with Amsterdam.
+                      DateTime startDate = DateTime.parse(item["start"]).add(Duration(hours: 2));
+                      DateTime endDate = DateTime.parse(item["end"]).add(Duration(hours: 2));
+                      // DEL? String retrievedDate =
+                      //     new DateFormat.yMd().format(startDate);
+                      print("Startdate: " + startDate.toString());
+                      print("Enddate: " + endDate.toString());
+                      // DEL? print("Retrieveddate: " + retrievedDate);
 
                       // Check if current booking is from today and also check if
                       // the time is this timeslot, than display it is reserved.
-                      if (
-                          // Booking is from today
-                          retrievedDate == todayDate &&
-                              // Booking is between this timeslot
-                              ((selectedTimeHour * 60) + selectedTimeMinute) >=
-                                  ((startDate.hour * 60) + startDate.minute) &&
-                              ((selectedTimeHour * 60) + selectedTimeMinute) <=
-                                  ((endDate.hour * 60) + endDate.minute)) {
-                        foundReserved = true;
-                        break;
+                      // print("---DATE DETAILS---");
+                      // print("Retrieveddate:  " + retrievedDate + " - todayDate: " + todayDate);
+                      // print("Selectedtimehour*60: " + (selectedTimeHour*60).toString());
+                      // print("Selectedtimeminute: " + (selectedTimeHour*60).toString());
+
+                      String formattedStart =
+                          new DateFormat.yMMMd().format(startDate);
+                      String formattedToday =
+                          new DateFormat.yMMMd().format(todayDate);
+                      print("FormattedStart: " +
+                          formattedStart +
+                          " and formattedtoday: " +
+                          formattedToday);
+                      if (formattedStart == formattedToday) {
+                        // Booking is from today
+                        print("****Booking is from today!****");
+                        print('TIMESLOT START: ' + selectedTimeStartHour.toString() + ":" + selectedTimeStartMinute.toString());
+                        print('TIMESLOT END: ' + selectedTimeEndHour.toString() + ":" + selectedTimeEndMinute.toString());
+
+                        print((startDate.hour).toString());
+                        print((startDate.minute).toString());
+
+                        print((endDate.hour).toString());
+                        print((endDate.minute).toString());
+                        print("****END Booking is from today!****");
+                        if (((selectedTimeStartHour * 60) + selectedTimeStartMinute) >=
+                                ((startDate.hour * 60) + startDate.minute) &&
+                            ((selectedTimeEndHour * 60) + selectedTimeEndMinute) <=
+                                ((endDate.hour * 60) + endDate.minute)) {
+                          // Booking is between this timeslot
+                          print(
+                              "*******Booking is from today and within a timeslot********");
+                          foundReserved = true;
+                          break;
+                        }
+                      } else {
+                        print(
+                            "Booking is NOT from today and NOT within a timeslot");
                       }
                     }
                   }
