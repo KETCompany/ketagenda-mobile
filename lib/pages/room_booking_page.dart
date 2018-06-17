@@ -44,8 +44,8 @@ class _RoomBookingPage extends State<RoomBookingPage> {
   Future postData() async {
     var idAndBooking = {
       "name": globals.user.displayName,
-      "description": "Student Reservering",
-      "groups": ["5b1dc8fdce0c3b20c5f9b9f3"],
+      "description": "Student Reservering (" + globals.user.email + ")",
+      "groups": [],
       "bookings":  [
         {
         "start": new DateTime.now().millisecondsSinceEpoch,
@@ -59,8 +59,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
         "http://keta.superict.nl/api/events",
         body: idAndBookingJSON, headers: {"Content-Type": "application/json"});
     roomInfo.bookings.removeLast();
-  print(idAndBookingJSON);
-  print(idAndBookingJSON.length);
     if (res.statusCode == 200) {
       setState(() {
         postIsAccepted = true;
