@@ -103,7 +103,13 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   Widget build(BuildContext context) {
     if (apiIsOnline) {
       return new Scaffold(
-        appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
+        appBar: new AppBar(
+        title: new Text('Terug naar overzicht'),
+        leading: new IconButton(
+          icon: new Icon(Icons.arrow_back),
+          onPressed: () {Navigator.pushNamed(context, "/BuildingSelectionPage");},
+        ),
+      ),
         backgroundColor: Colors.redAccent[700],
         body: new Column(
           children: <Widget>[

@@ -1,15 +1,30 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:KETAgenda/pages/login_page.dart';
+import 'package:KETAgenda/pages/room_details_page.dart';
 import 'package:flutter/material.dart';
 import '../plugins/barcode_scan.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:KETAgenda/globals.dart' as globals; 
+import 'package:KETAgenda/globals.dart' as globals;
 
 class QRPage extends StatefulWidget {
   @override
   _QRPage createState() => new _QRPage(barcode: "");
+}
+
+class MyCustomRoute<T> extends MaterialPageRoute<T> {
+  MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
+      : super(builder: builder, settings: settings);
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation,
+      Animation<double> secondaryAnimation, Widget child) {
+    if (settings.isInitialRoute) return child;
+    // Fades between routes. (If you don't want any animation,
+    // just return child.)
+    return new FadeTransition(opacity: animation, child: child);
+  }
 }
 
 class _QRPage extends State<QRPage> {
@@ -228,21 +243,35 @@ class _QRPage extends State<QRPage> {
   Future scan() async {
     try {
       String barcode = await BarcodeScanner.scan();
+      
+      // Send user to the details page of this room
+      Navigator.push(
+        context,
+        new MyCustomRoute(
+          builder: (_) => new RoomDetailsPage(roomId: barcode),
+        ),
+      );
+
+      // Save barcode for this page
       setState(() => this.barcode = barcode);
       this.getSWData(barcode);
     } on PlatformException catch (e) {
       if (e.code == BarcodeScanner.CameraAccessDenied) {
         setState(() {
           this.barcode = 'The user did not grant the camera permission!';
+          Navigator.pushNamed(context, "/");
         });
       } else {
         setState(() => this.barcode = 'Unknown error: $e');
+        Navigator.pushNamed(context, "/");
       }
     } on FormatException {
       setState(() => this.barcode =
           'null (User returned using the "back"-button before scanning anything. Result)');
+      Navigator.pushNamed(context, "/");
     } catch (e) {
       setState(() => this.barcode = 'Unknown error: $e');
+      Navigator.pushNamed(context, "/");
     }
   }
 }
