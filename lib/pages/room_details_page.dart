@@ -79,7 +79,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
       _roomInfo.checkedBookings = new List<bool>.filled(15, false);
 
       // Save last date in case user goes to booking page
-      _roomInfo.chosenDateToBook = new DateFormat('d/M/y').format(todayDate);
+      _roomInfo.chosenDateToBook = new DateFormat('y-MM-d').format(todayDate);
     });
   }
 
@@ -237,7 +237,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               padding: new EdgeInsets.only(top: 10.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: new DateFormat('d/M/y').format(todayDate),
+                  text: new DateFormat('d MMMM y').format(todayDate),
                   style: new TextStyle(color: Colors.white, fontSize: 15.0),
                 ),
               ),
@@ -315,8 +315,8 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
 
                     for (final item in _roomInfo.bookings) {
                       // Timezone is by default UTC, so add 2 hours to make up with Amsterdam.
-                      DateTime startDate = DateTime.parse(item["start"]).add(Duration(hours: 2));
-                      DateTime endDate = DateTime.parse(item["end"]).add(Duration(hours: 2));
+                      DateTime startDate = DateTime.parse(item["start"]).toUtc().add(Duration(hours: 2));
+                      DateTime endDate = DateTime.parse(item["end"]).toUtc().add(Duration(hours: 2));
                       // DEL? String retrievedDate =
                       //     new DateFormat.yMd().format(startDate);
                       print("Startdate: " + startDate.toString());

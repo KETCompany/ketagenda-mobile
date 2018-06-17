@@ -21,6 +21,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
   //Controllers
   TimeSlotsInfo _timeSlotsInfo = new TimeSlotsInfo();
   List<String> _bookedTimeSlots = new List<String>();
+  List listOfBookings = new List();
 
   // Specify the amount of elements that are displayed BEFORE the actual bookings itself
   // example: 4 cards (Kamer, Type, Locatie & Verdiepingsnummmer) and the 3 titles etc..
@@ -30,12 +31,21 @@ class _RoomBookingPage extends State<RoomBookingPage> {
     setState(() {
       for (int i = 0; i < roomInfo.checkedBookings.length; i++) {
         if (roomInfo.checkedBookings[i]) {
+          // Add the bookings to a list so it can be sent at once.
+          listOfBookings.add(
+            {
+              "start": ((DateTime.parse(roomInfo.chosenDateToBook+"T"+_timeSlotsInfo.timeslotsOfADayStarting[i]).millisecondsSinceEpoch) ~/ 1000).toInt(),
+              "end": ((DateTime.parse(roomInfo.chosenDateToBook+"T"+_timeSlotsInfo.timeslotsOfADayEnding[i]).millisecondsSinceEpoch) ~/ 1000).toInt(),
+              "room": roomInfo.id
+            });
           // Found checked timeslot, add it to list as text to display later
           _bookedTimeSlots.add(_timeSlotsInfo.timeslotsOfADayStarting[i] +
               " tot " +
               _timeSlotsInfo.timeslotsOfADayEnding[i]);
         }
       }
+      print("List of bookings2:");
+      print(listOfBookings);
     });
   }
 
@@ -46,19 +56,21 @@ class _RoomBookingPage extends State<RoomBookingPage> {
       "name": globals.user.displayName,
       "description": "Student Reservering (" + globals.user.email + ")",
       "groups": [],
-      "bookings":  [
-        {
-        "start": new DateTime.now().millisecondsSinceEpoch,
-        "end": new DateTime.now().millisecondsSinceEpoch + 3600,
-        "room": roomInfo.id
-      }
-      ]
+      "bookings": listOfBookings
+      // "bookings":  [
+      //   {
+      //   "start": new DateTime.now().millisecondsSinceEpoch,
+      //   "end": new DateTime.now().millisecondsSinceEpoch + 3600,
+      //   "room": roomInfo.id
+      // }
+      // ]
     };
     String idAndBookingJSON = json.encode(idAndBooking);
+    print("idAndBookingJSON THAT GOT SENT:");
+    print(idAndBookingJSON);
     http.Response res = await http.post(
         "http://keta.superict.nl/api/events",
         body: idAndBookingJSON, headers: {"Content-Type": "application/json"});
-    roomInfo.bookings.removeLast();
     if (res.statusCode == 200) {
       setState(() {
         postIsAccepted = true;
