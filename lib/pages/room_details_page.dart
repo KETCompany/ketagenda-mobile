@@ -64,8 +64,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
       _roomInfo.location = room.location;
       _roomInfo.floor = room.floor;
       _roomInfo.bookings = bookingsList;
-      print("Booking list:");
-      print(bookingsList[3]);
     });
   }
 
@@ -289,7 +287,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                   // Check if current day and timeslot can be found in the bookings
                   bool foundReserved = false;
                   if (index <
-                      _timeSlotInfo.timeslotsOfADayStarting.length - 1) {
+                      _timeSlotInfo.timeslotsOfADayStarting.length) {
                     print("Trying to find reserved timeslots..");
                     int selectedTimeStartHour = int.parse(_timeSlotInfo
                         .timeslotsOfADayStarting[index]
@@ -329,7 +327,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       // print("Retrieveddate:  " + retrievedDate + " - todayDate: " + todayDate);
                       // print("Selectedtimehour*60: " + (selectedTimeHour*60).toString());
                       // print("Selectedtimeminute: " + (selectedTimeHour*60).toString());
-
+                      
                       String formattedStart =
                           new DateFormat.yMMMd().format(startDate);
                       String formattedToday =
@@ -338,7 +336,10 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                           formattedStart +
                           " and formattedtoday: " +
                           formattedToday);
+                           if(item == _roomInfo.bookings[10] && selectedTimeStartHour == 21){
+                      }
                       if (formattedStart == formattedToday) {
+                       
                         // Booking is from today
                         print("****Booking is from today!****");
                         print('TIMESLOT START: ' + selectedTimeStartHour.toString() + ":" + selectedTimeStartMinute.toString());
@@ -350,6 +351,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         print((endDate.hour).toString());
                         print((endDate.minute).toString());
                         print("****END Booking is from today!****");
+                        
                         if (((selectedTimeStartHour * 60) + selectedTimeStartMinute) >=
                                 ((startDate.hour * 60) + startDate.minute) &&
                             ((selectedTimeEndHour * 60) + selectedTimeEndMinute) <=
@@ -360,9 +362,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                           foundReserved = true;
                           break;
                         }
-                      } else {
-                        print(
-                            "Booking is NOT from today and NOT within a timeslot");
                       }
                     }
                   }
