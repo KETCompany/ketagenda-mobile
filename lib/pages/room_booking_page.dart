@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../components/room_info.dart';
+import '../globals.dart' as globals;
+import 'package:http/http.dart' as http;
 
 class RoomBookingPage extends StatefulWidget {
   RoomBookingPage({Key key, this.roomInfo}) : super(key: key);
@@ -13,13 +16,12 @@ class RoomBookingPage extends StatefulWidget {
 class _RoomBookingPage extends State<RoomBookingPage> {
   _RoomBookingPage(this.roomInfo);
   final RoomInfo roomInfo;
-
-  //Get info from room number (result of QR code scan)
-  String url = 'http://keta.superict.nl/api/rooms/';
+  String url = globals.baseAPIURL + '/api/rooms/';
 
   //Controllers
   TimeSlotsInfo _timeSlotsInfo = new TimeSlotsInfo();
   List<String> _bookedTimeSlots = new List<String>();
+  List listOfBookings = new List();
 
   // Specify the amount of elements that are displayed BEFORE the actual bookings itself
   // example: 4 cards (Kamer, Type, Locatie & Verdiepingsnummmer) and the 3 titles etc..
@@ -29,18 +31,57 @@ class _RoomBookingPage extends State<RoomBookingPage> {
     setState(() {
       for (int i = 0; i < roomInfo.checkedBookings.length; i++) {
         if (roomInfo.checkedBookings[i]) {
+          // Add the bookings to a list so it can be sent at once.
+          listOfBookings.add(
+            {
+              "start": ((DateTime.parse(roomInfo.chosenDateToBook+"T"+_timeSlotsInfo.timeslotsOfADayStarting[i]).millisecondsSinceEpoch) ~/ 1000).toInt(),
+              "end": ((DateTime.parse(roomInfo.chosenDateToBook+"T"+_timeSlotsInfo.timeslotsOfADayEnding[i]).millisecondsSinceEpoch) ~/ 1000).toInt(),
+              "room": roomInfo.id
+            });
           // Found checked timeslot, add it to list as text to display later
           _bookedTimeSlots.add(_timeSlotsInfo.timeslotsOfADayStarting[i] +
               " tot " +
               _timeSlotsInfo.timeslotsOfADayEnding[i]);
         }
       }
+      print("List of bookings2:");
+      print(listOfBookings);
     });
+  }
+
+  bool postIsAccepted = false;
+  // Post to
+  Future postData() async {
+    var idAndBooking = {
+      "name": globals.user.displayName,
+      "description": "Student Reservering (" + globals.user.email + ")",
+      "groups": [],
+      "bookings": listOfBookings
+      // "bookings":  [
+      //   {
+      //   "start": new DateTime.now().millisecondsSinceEpoch,
+      //   "end": new DateTime.now().millisecondsSinceEpoch + 3600,
+      //   "room": roomInfo.id
+      // }
+      // ]
+    };
+    String idAndBookingJSON = json.encode(idAndBooking);
+    print("idAndBookingJSON THAT GOT SENT:");
+    print(idAndBookingJSON);
+    http.Response res = await http.post(
+        "http://keta.superict.nl/api/events",
+        body: idAndBookingJSON, headers: {"Content-Type": "application/json"});
+    if (res.statusCode == 200) {
+      setState(() {
+        postIsAccepted = true;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
       backgroundColor: Colors.redAccent[700],
       body: new Column(
         children: <Widget>[
@@ -107,11 +148,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("K",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.name),
                             subtitle: new Text("Kamer"),
                           ),
@@ -124,11 +160,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("T",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.type),
                             subtitle: new Text("Type"),
                           ),
@@ -141,11 +172,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("G",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.location),
                             subtitle: new Text("Locatie"),
                           ),
@@ -158,11 +184,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: new CircleAvatar(
-                              child: new Text("V",
-                                  style: new TextStyle(
-                                      color: Colors.white, fontSize: 22.0)),
-                            ),
                             title: new Text(roomInfo.floor),
                             subtitle: new Text("Verdiepingsnummer"),
                           ),
@@ -188,7 +209,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         children: <Widget>[
                           new ListTile(
                             leading: const Icon(Icons.perm_identity),
-                            title: new Text("{VOORNAAM} {ACHTERNAAM}"),
+                            title: new Text(globals.user.displayName),
                             subtitle: new Text("Naam"),
                           ),
                         ],
@@ -200,8 +221,8 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.perm_identity),
-                            title: new Text("{EMAIL}"),
+                            leading: const Icon(Icons.email),
+                            title: new Text(globals.user.email),
                             subtitle: new Text("E-Mailadres"),
                           ),
                         ],
@@ -241,28 +262,32 @@ class _RoomBookingPage extends State<RoomBookingPage> {
             width: double.infinity,
             child: new FlatButton(
               onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (_) => new AlertDialog(
-                        title: new Text("Probeer het later opnieuw"),
-                        content: new SingleChildScrollView(
-                          child: new ListBody(
-                            children: <Widget>[
-                              new Text(
-                                  'Op dit moment kunt u nog niet reserveren.')
+                postData().then((_) => (showDialog(
+                      context: context,
+                      builder: (_) => new AlertDialog(
+                            title: new Text(this.postIsAccepted
+                                ? "Gelukt!"
+                                : "Probeer het later opnieuw"),
+                            content: new SingleChildScrollView(
+                              child: new ListBody(
+                                children: <Widget>[
+                                  new Text(this.postIsAccepted
+                                      ? "Het is gelukt, jouw reservering staat nu vast! Wij hebben een e-mail verstuurd met de bevestiging."
+                                      : "Op dit moment kunt u nog niet reserveren.")
+                                ],
+                              ),
+                            ),
+                            actions: <Widget>[
+                              new FlatButton(
+                                child: new Text('OK'),
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                              ),
                             ],
                           ),
-                        ),
-                        actions: <Widget>[
-                          new FlatButton(
-                            child: new Text('OK'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      ),
-                );
+                    )));
+
                 // Navigator.push(
                 //   context,
                 //   new MyCustomRoute(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../globals.dart' as globals;
 
 class FirstTimePage extends StatelessWidget {
   @override
@@ -25,21 +26,24 @@ class FirstTimePage extends StatelessWidget {
                       ),
                       new RichText(
                         text: new TextSpan(
-                          text: "Welkom",
+                          text: "Welkom, " + globals.user.displayName,
                           style: new TextStyle(
-                              color: Colors.blueAccent, fontSize: 20.0),
+                              color: Colors.blueAccent, fontSize: 24.0),
                         ),
                       ),
                       new Container(
-                        width: 250.0,
-                        child: new RichText(
+                        width: 230.0,
+                        height: 100.0,
+                        child: new Center(
+                          child:  new RichText(
                           text: new TextSpan(
                             text:
                                 "Wij zien dat u een nieuwe gebruiker van dit systeem bent. Wilt u de uitleg starten?",
                             style: new TextStyle(
-                                color: Colors.blueAccent, fontSize: 12.0),
+                                color: Colors.blueAccent, fontSize: 16.0),
                           ),
                         ),
+                        )
                       ),
                       new Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,

@@ -1,17 +1,21 @@
+import 'package:intl/intl.dart';
+
 class RoomInfo {
-  String name = "...";
-  String type = "...";
-  String location = "...";
-  String floor = "...";
+  String id = "";
+  String name = "";
+  String type = "";
+  String location = "";
+  String floor = "";
   List bookings = new List();
   List checkedBookings =
       new List<bool>.filled(15, false); // Checked items will be saved here
+  String chosenDateToBook = new DateFormat('y-MM-d').format(new DateTime.now());
 }
 
 class TimeSlotsInfo {
   List timeslotsOfADayStarting = [
-    "8:30",
-    "9:20",
+    "08:30",
+    "09:20",
     "10:30",
     "11:20",
     "12:10",
@@ -28,7 +32,7 @@ class TimeSlotsInfo {
   ];
 
   List timeslotsOfADayEnding = [
-    "9:20",
+    "09:20",
     "10:10",
     "11:20",
     "12:10",

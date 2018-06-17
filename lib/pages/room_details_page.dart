@@ -5,6 +5,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
 import '../components/room_info.dart';
+import '../components/room.dart';
+import 'package:KETAgenda/globals.dart' as globals;
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
@@ -31,9 +33,7 @@ class RoomDetailsPage extends StatefulWidget {
 class _RoomDetailsPage extends State<RoomDetailsPage> {
   _RoomDetailsPage(this.roomId);
   final String roomId;
-
-  //Get info from room number (result of QR code scan)
-  String url = 'http://keta.superict.nl/api/rooms/';
+  String url = globals.baseAPIURL + '/api/rooms/';
 
   //Controllers
   RoomInfo _roomInfo = new RoomInfo();
@@ -43,46 +43,52 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   // Date of today
   DateTime now = new DateTime.now();
   int todayDateNumber = 0;
-  String todayDate = "";
+  DateTime todayDate = new DateTime.now();
 
-  List data = new List();
   bool checkBoxState = true;
   Future getSWData() async {
-    // print(roomId);
+    // changeDate();
+    // print(url + roomId);
+    var resBookings =
+        await http.get(Uri.encodeFull(url + roomId + "?populate"));
     var res = await http.get(Uri.encodeFull(url + roomId),
         headers: {"Accept": "application/json"});
     setState(() {
-      var resBody = json.decode(res.body);
-      data = resBody;
-      _roomInfo.name =
-          data[0]["name"] != null ? data[0]["name"].toString() : "Unknown";
-      _roomInfo.type =
-          data[0]["type"] != null ? data[0]["type"].toString() : "Unknown";
-      _roomInfo.location = data[0]["location"] != null
-          ? data[0]["location"].toString()
-          : "Unknown";
-      _roomInfo.floor =
-          data[0]["floor"] != null ? data[0]["floor"].toString() : "Unknown";
-      _roomInfo.bookings = data[0]["bookings"];
-      changeDate();
+      List bookingsList = json.decode(resBookings.body)['bookings'] != null
+          ? json.decode(resBookings.body)['bookings']
+          : new List();
+      Map roomMap = json.decode(res.body);
+      // var bookings = new Bookings.fromJson(bookingsList);
+      var room = new Room.fromJson(roomMap);
+      _roomInfo.id = room.id;
+      _roomInfo.name = room.name;
+      _roomInfo.type = room.type;
+      _roomInfo.location = room.location;
+      _roomInfo.floor = room.floor;
+      _roomInfo.bookings = bookingsList;
     });
   }
 
-  void changeDate() {
+  void changeDate(addDay) {
     setState(() {
       // Change the date to search for
-      todayDate =
-          new DateFormat.yMd().format(now.add(Duration(days: todayDateNumber)));
+      todayDate = addDay
+          ? todayDate.add(Duration(days: 1))
+          : todayDate.add(Duration(days: -1));
 
       // Clear all checkboxes
       timeslotsSelectedWithCheckboxes = new List<bool>.filled(15, false);
       _roomInfo.checkedBookings = new List<bool>.filled(15, false);
+
+      // Save last date in case user goes to booking page
+      _roomInfo.chosenDateToBook = new DateFormat('y-MM-d').format(todayDate);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
+      appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
       backgroundColor: Colors.redAccent[700],
       body: new Column(
         children: <Widget>[
@@ -123,7 +129,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               padding: new EdgeInsets.all(5.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: "Gegevens",
+                  text: "Gegevens over deze kamer",
                   style: new TextStyle(color: Colors.white, fontSize: 28.0),
                 ),
               ),
@@ -142,7 +148,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.name),
                             subtitle: new Text("Kamer"),
                           ),
@@ -154,7 +159,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.type),
                             subtitle: new Text("Type"),
                           ),
@@ -166,7 +170,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.location),
                             subtitle: new Text("Locatie"),
                           ),
@@ -178,7 +181,6 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           new ListTile(
-                            leading: const Icon(Icons.title),
                             title: new Text(_roomInfo.floor),
                             subtitle: new Text("Verdiepingsnummer"),
                           ),
@@ -200,7 +202,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       this.setState(() {
                         if (todayDateNumber > 0) {
                           todayDateNumber = todayDateNumber - 1;
-                          changeDate();
+                          changeDate(false);
                         }
                       });
                     },
@@ -223,7 +225,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       this.setState(() {
                         if (todayDateNumber < 7) {
                           todayDateNumber = todayDateNumber + 1;
-                          changeDate();
+                          changeDate(true);
                         }
                       });
                     },
@@ -237,7 +239,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               padding: new EdgeInsets.only(top: 10.0),
               child: new RichText(
                 text: new TextSpan(
-                  text: todayDate,
+                  text: new DateFormat('d MMMM y').format(todayDate),
                   style: new TextStyle(color: Colors.white, fontSize: 15.0),
                 ),
               ),
@@ -259,15 +261,20 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                     title: new Row(
                       children: <Widget>[
                         new Expanded(
-                            child: new Text("Beschikbaar",
+                            child: new Text(
+                                _timeSlotInfo.timeslotsOfADayStarting[index] +
+                                    " tot " +
+                                    _timeSlotInfo.timeslotsOfADayEnding[index],
                                 style: new TextStyle(color: Colors.white))),
                         new Checkbox(
                           value: timeslotsSelectedWithCheckboxes[index],
                           onChanged: (bool value) {
-                            this.setState(() {
-                              timeslotsSelectedWithCheckboxes[index] = value;
-                              _roomInfo.checkedBookings[index] = value;
-                            });
+                            if (_roomInfo.id != "") {
+                              this.setState(() {
+                                timeslotsSelectedWithCheckboxes[index] = value;
+                                _roomInfo.checkedBookings[index] = value;
+                              });
+                            }
                           },
                         )
                       ],
@@ -277,48 +284,105 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                       style: new TextStyle(color: Colors.white70),
                     ),
                     onTap: () {
-                      this.setState(() {
-                        timeslotsSelectedWithCheckboxes[index] =
-                            !timeslotsSelectedWithCheckboxes[index];
-                        _roomInfo.checkedBookings[index] =
-                            !_roomInfo.checkedBookings[index];
-                      });
+                      if (_roomInfo.id != "") {
+                        this.setState(() {
+                          timeslotsSelectedWithCheckboxes[index] =
+                              !timeslotsSelectedWithCheckboxes[index];
+                          _roomInfo.checkedBookings[index] =
+                              !_roomInfo.checkedBookings[index];
+                        });
+                      }
                     },
                   );
 
                   // Check if current day and timeslot can be found in the bookings
                   bool foundReserved = false;
-                  if (index <
-                      _timeSlotInfo.timeslotsOfADayStarting.length - 1) {
-                    int selectedTimeHour = int.parse(_timeSlotInfo
+                  if (index < _timeSlotInfo.timeslotsOfADayStarting.length) {
+                    print("Trying to find reserved timeslots..");
+                    int selectedTimeStartHour = int.parse(_timeSlotInfo
                         .timeslotsOfADayStarting[index]
                         .toString()
                         .split(":")[0]);
-                    int selectedTimeMinute = int.parse(_timeSlotInfo
+                    int selectedTimeStartMinute = int.parse(_timeSlotInfo
                         .timeslotsOfADayStarting[index]
                         .toString()
                         .split(":")[1]);
+                    int selectedTimeEndHour = int.parse(_timeSlotInfo
+                        .timeslotsOfADayEnding[index]
+                        .toString()
+                        .split(":")[0]);
+
+                    int selectedTimeEndMinute = int.parse(_timeSlotInfo
+                        .timeslotsOfADayEnding[index]
+                        .toString()
+                        .split(":")[1]);
+                    print("selectedTimeStartHour: " +
+                        selectedTimeStartHour.toString());
+                    print("selectedTimeStartMinute: " +
+                        selectedTimeStartMinute.toString());
+                    print("selectedTimeEndHour: " +
+                        selectedTimeEndHour.toString());
+                    print("selectedTimeStartMinute: " +
+                        selectedTimeEndMinute.toString());
 
                     for (final item in _roomInfo.bookings) {
-                      DateTime startDate =
-                          DateTime.parse(item["dates"][0]["start"].toString());
-                      DateTime endDate =
-                          DateTime.parse(item["dates"][0]["end"].toString());
-                      String retrievedDate =
-                          new DateFormat.yMd().format(startDate);
+                      // Timezone is by default UTC, so add 2 hours to make up with Amsterdam.
+                      DateTime startDate = DateTime
+                          .parse(item["start"])
+                          .toUtc()
+                          .add(Duration(hours: 2));
+                      DateTime endDate = DateTime
+                          .parse(item["end"])
+                          .toUtc()
+                          .add(Duration(hours: 2));
+                      // DEL? String retrievedDate =
+                      //     new DateFormat.yMd().format(startDate);
+                      print("Startdate: " + startDate.toString());
+                      print("Enddate: " + endDate.toString());
+                      // DEL? print("Retrieveddate: " + retrievedDate);
 
                       // Check if current booking is from today and also check if
                       // the time is this timeslot, than display it is reserved.
-                      if (
-                          // Booking is from today
-                          retrievedDate == todayDate &&
-                              // Booking is between this timeslot
-                              ((selectedTimeHour * 60) + selectedTimeMinute) >=
-                                  ((startDate.hour * 60) + startDate.minute) &&
-                              ((selectedTimeHour * 60) + selectedTimeMinute) <=
-                                  ((endDate.hour * 60) + endDate.minute)) {
-                        foundReserved = true;
-                        break;
+                      // print("---DATE DETAILS---");
+                      // print("Retrieveddate:  " + retrievedDate + " - todayDate: " + todayDate);
+                      // print("Selectedtimehour*60: " + (selectedTimeHour*60).toString());
+                      // print("Selectedtimeminute: " + (selectedTimeHour*60).toString());
+
+                      String formattedStart =
+                          new DateFormat.yMMMd().format(startDate);
+                      String formattedToday =
+                          new DateFormat.yMMMd().format(todayDate);
+                      if (formattedStart == formattedToday) {
+                        // Booking is from today
+                        print("****Booking is from today!****");
+                        print('TIMESLOT START: ' +
+                            selectedTimeStartHour.toString() +
+                            ":" +
+                            selectedTimeStartMinute.toString());
+                        print('TIMESLOT END: ' +
+                            selectedTimeEndHour.toString() +
+                            ":" +
+                            selectedTimeEndMinute.toString());
+
+                        print((startDate.hour).toString());
+                        print((startDate.minute).toString());
+
+                        print((endDate.hour).toString());
+                        print((endDate.minute).toString());
+                        print("****END Booking is from today!****");
+
+                        if (((selectedTimeStartHour * 60) +
+                                    selectedTimeStartMinute) >=
+                                ((startDate.hour * 60) + startDate.minute) &&
+                            ((selectedTimeEndHour * 60) +
+                                    selectedTimeEndMinute) <=
+                                ((endDate.hour * 60) + endDate.minute)) {
+                          // Booking is between this timeslot
+                          print(
+                              "*******Booking is from today and within a timeslot********");
+                          foundReserved = true;
+                          break;
+                        }
                       }
                     }
                   }
