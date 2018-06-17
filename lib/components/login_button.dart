@@ -3,14 +3,12 @@ import 'dart:async';
 import 'package:KETAgenda/services/api_tools.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import '../globals.dart' as globals;
+import 'package:KETAgenda/globals.dart' as globals;
 
 class LoginButton extends StatefulWidget {
   @override
   _LoginButton createState() => new _LoginButton();
 }
-
-StreamSubscription periodicSub;
 
 class _LoginButton extends State<LoginButton> {
   GoogleSignIn _googleSignIn = new GoogleSignIn(

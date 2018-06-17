@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../globals.dart' as globals;
+import 'package:KETAgenda/globals.dart' as globals;
 
 class FirstTimePage extends StatelessWidget {
   @override

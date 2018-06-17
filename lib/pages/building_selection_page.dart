@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:KETAgenda/pages/room_details_page.dart';
+import 'package:KETAgenda/services/api_tools.dart';
 import 'package:flutter/material.dart';
-import 'room_details_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:KETAgenda/globals.dart' as globals; 
+import 'package:KETAgenda/components/modal_server_offline.dart';
 
 class BuildingSelectionPage extends StatefulWidget {
   @override
@@ -27,6 +29,19 @@ class MyCustomRoute<T> extends MaterialPageRoute<T> {
 class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   String url = globals.baseAPIURL + '/api/rooms?name=';
   List data = new List();
+  
+  bool apiIsOnline = true;
+  Future<Null> checkAPI() async {
+    // Check if I can get status code 200 back
+    bool isOnline = await new API().urlResponseOK(globals.baseAPIURL);
+    bool isReturningHelloWorld =
+        await new API().retrieveHelloWorldJSON(globals.baseAPIURL);
+    setState(() {
+      apiIsOnline = isOnline && isReturningHelloWorld ? true : false;
+    });
+  }
+
+  
 
   Future getSWData() async {
     var res = await http
@@ -40,7 +55,8 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    if(apiIsOnline){
+      return new Scaffold(
       appBar: new AppBar(title: new Text("Terug gaan naar vorige pagina"), actions: <Widget>[
         new IconButton(
               icon: const Icon(Icons.exit_to_app),
@@ -142,11 +158,16 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
         ],
       ),
     );
+    } else {
+      // Server is offline
+      return ServerOffline();
+    }
   }
 
   @override
   void initState() {
     super.initState();
     this.getSWData();
+    this.checkAPI();
   }
 }
