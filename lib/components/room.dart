@@ -1,3 +1,5 @@
+// This class is mapping incoming JSON to the properties
+// It gets passed from 'room_details_page.dart' page to 'room_booking_page.dart' page
 class Room {
   final List displayKeys;
   final String id;

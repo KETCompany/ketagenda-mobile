@@ -1,12 +1,12 @@
 // Default test framework 
 import 'dart:async'; 
+import 'package:KETAgenda/services/api_tools.dart';
 import 'package:test/test.dart'; 
  
 // Retrieve global states 
 import 'package:KETAgenda/globals.dart' as globals; 
  
-// Components to be tested 
-import 'package:KETAgenda/components/api_tools.dart'; 
+// Components/services to be tested 
  
 // Unit tests start here, the async tests will run first 
 void main() async { 

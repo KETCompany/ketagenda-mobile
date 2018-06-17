@@ -1,9 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:KETAgenda/models/timeslots.dart';
+import 'package:KETAgenda/services/api_tools.dart';
 import 'package:flutter/material.dart';
 import '../components/room_info.dart';
-import '../globals.dart' as globals;
+import 'package:KETAgenda/globals.dart' as globals;
 import 'package:http/http.dart' as http;
+import 'package:KETAgenda/components/modal_server_offline.dart';
 
 class RoomBookingPage extends StatefulWidget {
   RoomBookingPage({Key key, this.roomInfo}) : super(key: key);
@@ -27,17 +30,39 @@ class _RoomBookingPage extends State<RoomBookingPage> {
   // example: 4 cards (Kamer, Type, Locatie & Verdiepingsnummmer) and the 3 titles etc..
   int amountOfElementsAboveBookings = 8;
 
+  bool apiIsOnline = true;
+  Future<Null> checkAPI() async {
+    // Check if I can get status code 200 back
+    bool isOnline = await new API().urlResponseOK(globals.baseAPIURL);
+    bool isReturningHelloWorld =
+        await new API().retrieveHelloWorldJSON(globals.baseAPIURL);
+    setState(() {
+      apiIsOnline = isOnline && isReturningHelloWorld ? true : false;
+    });
+  }
+
   Future getSWData() async {
     setState(() {
       for (int i = 0; i < roomInfo.checkedBookings.length; i++) {
         if (roomInfo.checkedBookings[i]) {
           // Add the bookings to a list so it can be sent at once.
-          listOfBookings.add(
-            {
-              "start": ((DateTime.parse(roomInfo.chosenDateToBook+"T"+_timeSlotsInfo.timeslotsOfADayStarting[i]).millisecondsSinceEpoch) ~/ 1000).toInt(),
-              "end": ((DateTime.parse(roomInfo.chosenDateToBook+"T"+_timeSlotsInfo.timeslotsOfADayEnding[i]).millisecondsSinceEpoch) ~/ 1000).toInt(),
-              "room": roomInfo.id
-            });
+          listOfBookings.add({
+            "start": ((DateTime
+                        .parse(roomInfo.chosenDateToBook +
+                            "T" +
+                            _timeSlotsInfo.timeslotsOfADayStarting[i])
+                        .millisecondsSinceEpoch) ~/
+                    1000)
+                .toInt(),
+            "end": ((DateTime
+                        .parse(roomInfo.chosenDateToBook +
+                            "T" +
+                            _timeSlotsInfo.timeslotsOfADayEnding[i])
+                        .millisecondsSinceEpoch) ~/
+                    1000)
+                .toInt(),
+            "room": roomInfo.id
+          });
           // Found checked timeslot, add it to list as text to display later
           _bookedTimeSlots.add(_timeSlotsInfo.timeslotsOfADayStarting[i] +
               " tot " +
@@ -68,8 +93,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
     String idAndBookingJSON = json.encode(idAndBooking);
     print("idAndBookingJSON THAT GOT SENT:");
     print(idAndBookingJSON);
-    http.Response res = await http.post(
-        "http://keta.superict.nl/api/events",
+    http.Response res = await http.post("http://keta.superict.nl/api/events",
         body: idAndBookingJSON, headers: {"Content-Type": "application/json"});
     if (res.statusCode == 200) {
       setState(() {
@@ -80,7 +104,8 @@ class _RoomBookingPage extends State<RoomBookingPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
+    if(apiIsOnline){
+      return new Scaffold(
       appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
       backgroundColor: Colors.redAccent[700],
       body: new Column(
@@ -273,7 +298,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                                 children: <Widget>[
                                   new Text(this.postIsAccepted
                                       ? "Het is gelukt, jouw reservering staat nu vast! Wij hebben een e-mail verstuurd met de bevestiging."
-                                      : "Op dit moment kunt u nog niet reserveren.")
+                                      : "Op dit moment kunt u niet reserveren.")
                                 ],
                               ),
                             ),
@@ -304,11 +329,16 @@ class _RoomBookingPage extends State<RoomBookingPage> {
         ],
       ),
     );
+    } else {
+      // Server is offline
+      return ServerOffline();
+    }
   }
 
   @override
   void initState() {
     super.initState();
     this.getSWData();
+    this.checkAPI();
   }
 }
