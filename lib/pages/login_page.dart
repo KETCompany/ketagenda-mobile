@@ -53,7 +53,10 @@ class LoginPage extends StatelessWidget {
               mainAxisSize: MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.end,
               children: <Widget>[
+                // Login button with logic
                 new LoginButton(),
+
+                // Simple button
                 new Container(
                   padding: new EdgeInsets.all(5.0),
                   width: double.infinity,

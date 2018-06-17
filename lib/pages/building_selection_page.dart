@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:KETAgenda/components/user_info.dart';
 import 'package:KETAgenda/pages/room_details_page.dart';
 import 'package:KETAgenda/services/api_tools.dart';
 import 'package:flutter/material.dart';
@@ -56,10 +57,11 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
     if (apiIsOnline) {
       return new Scaffold(
         appBar: new AppBar(
-          title: new Text('Terug naar inlogscherm'),
+          title: new Text('Uitloggen'),
           leading: new IconButton(
-            icon: new Icon(Icons.arrow_back),
+            icon: new Icon(Icons.exit_to_app),
             onPressed: () {
+              globals.user = new UserInfo();
               Navigator.pushNamed(context, "/");
             },
           ),

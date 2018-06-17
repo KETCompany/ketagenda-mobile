@@ -5,6 +5,7 @@ import 'package:KETAgenda/models/timeslots.dart';
 import 'package:KETAgenda/services/api_tools.dart';
 import 'package:KETAgenda/components/modal_server_offline.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
@@ -47,6 +48,34 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   DateTime now = new DateTime.now();
   int todayDateNumber = 0;
   DateTime todayDate = new DateTime.now();
+
+  GoogleSignIn _googleSignIn = new GoogleSignIn(
+    scopes: [
+      'email',
+    ],
+  );
+
+  Future<Null> _handleSignIn() async {
+    await checkAPI();
+    if (apiIsOnline) {
+      await _googleSignIn.signOut();
+      await _googleSignIn.signIn();
+      if (_googleSignIn.currentUser.email != "") {
+        if (_googleSignIn.currentUser.email.split("@")[1] == "hr.nl") {
+          globals.user.displayName = _googleSignIn.currentUser.displayName;
+          globals.user.email = _googleSignIn.currentUser.email;
+          // TODO: Check if its the first using the app
+          // If thats the case, show /FirstTimePage. Else continue to rooms overview.
+          Navigator.push(
+            context,
+            new MyCustomRoute(
+              builder: (_) => new RoomBookingPage(roomInfo: _roomInfo),
+            ),
+          );
+        }
+      }
+    }
+  }
 
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {
@@ -104,12 +133,14 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
     if (apiIsOnline) {
       return new Scaffold(
         appBar: new AppBar(
-        title: new Text('Terug naar overzicht'),
-        leading: new IconButton(
-          icon: new Icon(Icons.arrow_back),
-          onPressed: () {Navigator.pushNamed(context, "/BuildingSelectionPage");},
+          title: new Text('Terug naar overzicht'),
+          leading: new IconButton(
+            icon: new Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.pushNamed(context, "/BuildingSelectionPage");
+            },
+          ),
         ),
-      ),
         backgroundColor: Colors.redAccent[700],
         body: new Column(
           children: <Widget>[
@@ -438,15 +469,23 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
               width: double.infinity,
               child: new FlatButton(
                 onPressed: () {
+                  // Check if at least 1 timeslot has been checked
                   if (timeslotsSelectedWithCheckboxes.where((x) => x).length >
                       0) {
-                    Navigator.push(
-                      context,
-                      new MyCustomRoute(
-                        builder: (_) =>
-                            new RoomBookingPage(roomInfo: _roomInfo),
-                      ),
-                    );
+                    // Check if user has logged in with his/her @hr.nl account
+                    if (globals.user.email.length > 0) {
+                      // Logged in
+                      Navigator.push(
+                        context,
+                        new MyCustomRoute(
+                          builder: (_) =>
+                              new RoomBookingPage(roomInfo: _roomInfo),
+                        ),
+                      );
+                    } else {
+                      // Not logged in
+                      _handleSignIn();
+                    }
                   } else {
                     showDialog(
                       context: context,
