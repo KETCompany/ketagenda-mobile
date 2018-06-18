@@ -80,7 +80,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {
     // Check multiple endpoints to see if API is responding correctly
-    bool isOnline = await new API().checkAPI(url);
+    bool isOnline = await new API().checkAPI(url, {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
     setState(() {
       apiIsOnline = isOnline ? true : false;
     });
@@ -93,7 +93,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
     var resBookings =
         await http.get(Uri.encodeFull(url + roomId + "?populate"));
     var res = await http.get(Uri.encodeFull(url + roomId),
-        headers: {"Accept": "application/json"});
+        headers: {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
     setState(() {
       List bookingsList = json.decode(resBookings.body)['bookings'] != null
           ? json.decode(resBookings.body)['bookings']

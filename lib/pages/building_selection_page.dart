@@ -33,7 +33,7 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
 
   Future getSWData() async {
     var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
 
     setState(() {
       var resBody = json.decode(res.body);
@@ -44,7 +44,7 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {
     // Check multiple endpoints to see if API is responding correctly
-    bool isOnline = await new API().checkAPI(url);
+    bool isOnline = await new API().checkAPI(url, {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
     setState(() {
       apiIsOnline = isOnline ? true : false;
     });

@@ -40,7 +40,7 @@ class _QRPage extends State<QRPage> {
 
   Future getSWData(roomnumber) async {
     var res = await http.get(Uri.encodeFull(url + roomnumber),
-        headers: {"Accept": "application/json"});
+        headers: {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
 
     setState(() {
       var resBody = json.decode(res.body);

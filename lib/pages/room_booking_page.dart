@@ -33,7 +33,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {
     // Check multiple endpoints to see if API is responding correctly
-    bool isOnline = await new API().checkAPI(url);
+    bool isOnline = await new API().checkAPI(url, {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
     setState(() {
       apiIsOnline = isOnline ? true : false;
     });
@@ -92,7 +92,7 @@ class _RoomBookingPage extends State<RoomBookingPage> {
     print("idAndBookingJSON THAT GOT SENT:");
     print(idAndBookingJSON);
     http.Response res = await http.post("http://keta.superict.nl/api/events",
-        body: idAndBookingJSON, headers: {"Content-Type": "application/json"});
+        body: idAndBookingJSON, headers: {"Content-Type": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
     if (res.statusCode == 200) {
       setState(() {
         postIsAccepted = true;

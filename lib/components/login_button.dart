@@ -28,7 +28,7 @@ class _LoginButton extends State<LoginButton> {
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {
     // Check multiple endpoints to see if API is responding correctly
-    bool isOnline = await new API().checkAPI(globals.baseAPIURL);
+    bool isOnline = await new API().checkAPI(globals.baseAPIURL, {});
     setState(() {
       apiIsOnline = isOnline ? true : false;
     });

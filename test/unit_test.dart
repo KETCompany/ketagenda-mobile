@@ -16,7 +16,7 @@ void main() async {
  
 Future<bool> checkAPI() async { 
   // Check if I can get status code 200 back 
-  bool isOnline = await new API().urlResponseOK(globals.baseAPIURL); 
+  bool isOnline = await new API().urlResponseOK(globals.baseAPIURL, {}); 
   test('Checking the API Status Code', () { 
     expect(isOnline, true); 
   }); 

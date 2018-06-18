@@ -5,16 +5,16 @@ import 'package:http/http.dart' as http;
 import 'package:KETAgenda/globals.dart' as globals;
 
 class API {
-  Future<bool> checkAPI(url) async {
+  Future<bool> checkAPI(url, myHeaders) async {
     // Check if I can get status code 200 back
-    bool isOnline = await new API().urlResponseOK(globals.baseAPIURL);
-    bool isGettingAuthentication = await new API().urlResponseOK(url);
+    bool isOnline = await new API().urlResponseOK(globals.baseAPIURL, myHeaders);
+    bool isGettingAuthentication = await new API().urlResponseOK(url, myHeaders);
     bool isReturningHelloWorld = await new API().retrieveHelloWorldJSON();
     return isOnline && isReturningHelloWorld && isGettingAuthentication ? true : false;
   }
 
-  Future<bool> urlResponseOK(url) async {
-    var res = new http.Client().get(url);
+  Future<bool> urlResponseOK(url, myHeaders) async {
+    var res = new http.Client().get(url, headers: myHeaders);
     int statusCode = await res
         .then((onValue) => onValue.statusCode)
         .then((onValue) => onValue)
