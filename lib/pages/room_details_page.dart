@@ -1,12 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:KETAgenda/components/room_info.dart';
+import 'package:KETAgenda/models/timeslots.dart';
+import 'package:KETAgenda/services/api_tools.dart';
+import 'package:KETAgenda/components/modal_server_offline.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
-import '../components/room_info.dart';
 import '../components/room.dart';
 import 'package:KETAgenda/globals.dart' as globals;
+import 'package:KETAgenda/services/authentication.dart';
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
@@ -45,20 +49,40 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
   int todayDateNumber = 0;
   DateTime todayDate = new DateTime.now();
 
+  bool apiIsOnline = true;
+  Future checkAPI() async {
+    // Check if user has the API auth token
+    if (globals.user.apiToken.length > 0) {
+      // Check multiple endpoints to see if API is responding correctly
+      bool isOnline = await new API().checkAPI(url, {
+        "Accept": "application/json",
+        "Authorization": "Bearer " + globals.user.apiToken
+      });
+      setState(() {
+        apiIsOnline = isOnline ? true : false;
+      });
+      await getSWData();
+    } else {
+      // In case there is no token, let the user login with his/her account
+      await new Authentication().handleSignIn();
+      checkAPI();
+    }
+  }
+
   bool checkBoxState = true;
   Future getSWData() async {
-    // changeDate();
-    // print(url + roomId);
-    var resBookings =
-        await http.get(Uri.encodeFull(url + roomId + "?populate"));
-    var res = await http.get(Uri.encodeFull(url + roomId),
-        headers: {"Accept": "application/json"});
+    var resBookings = await http.get(Uri.encodeFull(url + roomId + "?populate"),
+        headers: {"Authorization": "Bearer " + globals.user.apiToken});
+    var res = await http.get(Uri.encodeFull(url + roomId), headers: {
+      "Accept": "application/json",
+      "Authorization": "Bearer " + globals.user.apiToken
+    });
     setState(() {
       List bookingsList = json.decode(resBookings.body)['bookings'] != null
           ? json.decode(resBookings.body)['bookings']
           : new List();
       Map roomMap = json.decode(res.body);
-      // var bookings = new Bookings.fromJson(bookingsList);
+
       var room = new Room.fromJson(roomMap);
       _roomInfo.id = room.id;
       _roomInfo.name = room.name;
@@ -87,379 +111,404 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: new AppBar(title: new Text('Terug naar vorige pagina')),
-      backgroundColor: Colors.redAccent[700],
-      body: new Column(
-        children: <Widget>[
-          new Expanded(
-            //Top white part
-            child: new Material(
-              color: Colors.white,
-              child: new Center(
-                child: new Column(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    new Column(
+    if (apiIsOnline) {
+      return new WillPopScope(
+        onWillPop: () async => false,
+        child: new Scaffold(
+          appBar: new AppBar(
+            title: new Text('Terug naar overzicht'),
+            leading: new IconButton(
+              icon: new Icon(Icons.arrow_back),
+              onPressed: () {
+                Navigator.pushNamed(context, "/BuildingSelectionPage");
+              },
+            ),
+          ),
+          backgroundColor: Colors.redAccent[700],
+          body: new Column(
+            children: <Widget>[
+              new Expanded(
+                //Top white part
+                child: new Material(
+                  color: Colors.white,
+                  child: new Center(
+                    child: new Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        new RichText(
-                          text: new TextSpan(
-                            text: "Kamer Details",
-                            style: new TextStyle(
-                                color: Colors.blueAccent, fontSize: 60.0),
-                          ),
-                        ),
-                        new RichText(
-                          text: new TextSpan(
-                            text: "Alle gegevens van ${_roomInfo.name}",
-                            style: new TextStyle(
-                                color: Colors.blueAccent, fontSize: 20.0),
-                          ),
+                        new Column(
+                          children: <Widget>[
+                            new RichText(
+                              text: new TextSpan(
+                                text: "Kamer Details",
+                                style: new TextStyle(
+                                    color: Colors.blueAccent, fontSize: 60.0),
+                              ),
+                            ),
+                            new RichText(
+                              text: new TextSpan(
+                                text: "Alle gegevens van ${_roomInfo.name}",
+                                style: new TextStyle(
+                                    color: Colors.blueAccent, fontSize: 20.0),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          new Center(
-            child: new Container(
-              padding: new EdgeInsets.all(5.0),
-              child: new RichText(
-                text: new TextSpan(
-                  text: "Gegevens over deze kamer",
-                  style: new TextStyle(color: Colors.white, fontSize: 28.0),
-                ),
-              ),
-            ),
-          ),
-          new Expanded(
-            child: new SingleChildScrollView(
-              child: new Container(
-                color: Colors.redAccent[700],
-                child: new Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    new Card(
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new ListTile(
-                            title: new Text(_roomInfo.name),
-                            subtitle: new Text("Kamer"),
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Card(
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new ListTile(
-                            title: new Text(_roomInfo.type),
-                            subtitle: new Text("Type"),
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Card(
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new ListTile(
-                            title: new Text(_roomInfo.location),
-                            subtitle: new Text("Locatie"),
-                          ),
-                        ],
-                      ),
-                    ),
-                    new Card(
-                      child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          new ListTile(
-                            title: new Text(_roomInfo.floor),
-                            subtitle: new Text("Verdiepingsnummer"),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          new Center(
-            child: new Row(
-              children: <Widget>[
-                new Expanded(
-                  child: new IconButton(
-                    icon: new Icon(Icons.arrow_left),
-                    onPressed: () {
-                      this.setState(() {
-                        if (todayDateNumber > 0) {
-                          todayDateNumber = todayDateNumber - 1;
-                          changeDate(false);
-                        }
-                      });
-                    },
                   ),
                 ),
-                new Container(
+              ),
+              new Center(
+                child: new Container(
+                  padding: new EdgeInsets.all(5.0),
                   child: new RichText(
                     text: new TextSpan(
-                      text: todayDateNumber == 0
-                          ? "Rooster van vandaag"
-                          : "Rooster",
+                      text: "Gegevens over deze kamer",
                       style: new TextStyle(color: Colors.white, fontSize: 28.0),
                     ),
                   ),
                 ),
-                new Expanded(
-                  child: new IconButton(
-                    icon: new Icon(Icons.arrow_right),
-                    onPressed: () {
-                      this.setState(() {
-                        if (todayDateNumber < 7) {
-                          todayDateNumber = todayDateNumber + 1;
-                          changeDate(true);
-                        }
-                      });
-                    },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          new Center(
-            child: new Container(
-              padding: new EdgeInsets.only(top: 10.0),
-              child: new RichText(
-                text: new TextSpan(
-                  text: new DateFormat('d MMMM y').format(todayDate),
-                  style: new TextStyle(color: Colors.white, fontSize: 15.0),
-                ),
               ),
-            ),
-          ),
-          new Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: _timeSlotInfo.timeslotsOfADayStarting
-                  .length, // 1 day consists of 15 time blocks
-              itemBuilder: (BuildContext context, int index) {
-                {
-                  // ListTile to display when it is able to be booked:
-                  ListTile bookableItem = new ListTile(
-                    leading: new CircleAvatar(
-                      child: new Text((index + 1).toString()),
-                      backgroundColor: Colors.blueAccent,
-                    ),
-                    title: new Row(
+              new Expanded(
+                child: new SingleChildScrollView(
+                  child: new Container(
+                    color: Colors.redAccent[700],
+                    child: new Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: <Widget>[
-                        new Expanded(
-                            child: new Text(
-                                _timeSlotInfo.timeslotsOfADayStarting[index] +
-                                    " tot " +
-                                    _timeSlotInfo.timeslotsOfADayEnding[index],
-                                style: new TextStyle(color: Colors.white))),
-                        new Checkbox(
-                          value: timeslotsSelectedWithCheckboxes[index],
-                          onChanged: (bool value) {
-                            if (_roomInfo.id != "") {
-                              this.setState(() {
-                                timeslotsSelectedWithCheckboxes[index] = value;
-                                _roomInfo.checkedBookings[index] = value;
-                              });
-                            }
-                          },
-                        )
+                        new Card(
+                          child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              new ListTile(
+                                title: new Text(_roomInfo.name),
+                                subtitle: new Text("Kamer"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        new Card(
+                          child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              new ListTile(
+                                title: new Text(_roomInfo.type),
+                                subtitle: new Text("Type"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        new Card(
+                          child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              new ListTile(
+                                title: new Text(_roomInfo.location),
+                                subtitle: new Text("Locatie"),
+                              ),
+                            ],
+                          ),
+                        ),
+                        new Card(
+                          child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              new ListTile(
+                                title: new Text(_roomInfo.floor),
+                                subtitle: new Text("Verdiepingsnummer"),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    subtitle: new Text(
-                      "Dit tijdblok is vrij om te reserveren",
-                      style: new TextStyle(color: Colors.white70),
+                  ),
+                ),
+              ),
+              new Center(
+                child: new Row(
+                  children: <Widget>[
+                    new Expanded(
+                      child: new IconButton(
+                        icon: new Icon(Icons.arrow_left),
+                        onPressed: () {
+                          this.setState(() {
+                            if (todayDateNumber > 0) {
+                              todayDateNumber = todayDateNumber - 1;
+                              changeDate(false);
+                            }
+                          });
+                        },
+                      ),
                     ),
-                    onTap: () {
-                      if (_roomInfo.id != "") {
-                        this.setState(() {
-                          timeslotsSelectedWithCheckboxes[index] =
-                              !timeslotsSelectedWithCheckboxes[index];
-                          _roomInfo.checkedBookings[index] =
-                              !_roomInfo.checkedBookings[index];
-                        });
-                      }
-                    },
-                  );
-
-                  // Check if current day and timeslot can be found in the bookings
-                  bool foundReserved = false;
-                  if (index < _timeSlotInfo.timeslotsOfADayStarting.length) {
-                    print("Trying to find reserved timeslots..");
-                    int selectedTimeStartHour = int.parse(_timeSlotInfo
-                        .timeslotsOfADayStarting[index]
-                        .toString()
-                        .split(":")[0]);
-                    int selectedTimeStartMinute = int.parse(_timeSlotInfo
-                        .timeslotsOfADayStarting[index]
-                        .toString()
-                        .split(":")[1]);
-                    int selectedTimeEndHour = int.parse(_timeSlotInfo
-                        .timeslotsOfADayEnding[index]
-                        .toString()
-                        .split(":")[0]);
-
-                    int selectedTimeEndMinute = int.parse(_timeSlotInfo
-                        .timeslotsOfADayEnding[index]
-                        .toString()
-                        .split(":")[1]);
-                    print("selectedTimeStartHour: " +
-                        selectedTimeStartHour.toString());
-                    print("selectedTimeStartMinute: " +
-                        selectedTimeStartMinute.toString());
-                    print("selectedTimeEndHour: " +
-                        selectedTimeEndHour.toString());
-                    print("selectedTimeStartMinute: " +
-                        selectedTimeEndMinute.toString());
-
-                    for (final item in _roomInfo.bookings) {
-                      // Timezone is by default UTC, so add 2 hours to make up with Amsterdam.
-                      DateTime startDate = DateTime
-                          .parse(item["start"])
-                          .toUtc()
-                          .add(Duration(hours: 2));
-                      DateTime endDate = DateTime
-                          .parse(item["end"])
-                          .toUtc()
-                          .add(Duration(hours: 2));
-                      // DEL? String retrievedDate =
-                      //     new DateFormat.yMd().format(startDate);
-                      print("Startdate: " + startDate.toString());
-                      print("Enddate: " + endDate.toString());
-                      // DEL? print("Retrieveddate: " + retrievedDate);
-
-                      // Check if current booking is from today and also check if
-                      // the time is this timeslot, than display it is reserved.
-                      // print("---DATE DETAILS---");
-                      // print("Retrieveddate:  " + retrievedDate + " - todayDate: " + todayDate);
-                      // print("Selectedtimehour*60: " + (selectedTimeHour*60).toString());
-                      // print("Selectedtimeminute: " + (selectedTimeHour*60).toString());
-
-                      String formattedStart =
-                          new DateFormat.yMMMd().format(startDate);
-                      String formattedToday =
-                          new DateFormat.yMMMd().format(todayDate);
-                      if (formattedStart == formattedToday) {
-                        // Booking is from today
-                        print("****Booking is from today!****");
-                        print('TIMESLOT START: ' +
-                            selectedTimeStartHour.toString() +
-                            ":" +
-                            selectedTimeStartMinute.toString());
-                        print('TIMESLOT END: ' +
-                            selectedTimeEndHour.toString() +
-                            ":" +
-                            selectedTimeEndMinute.toString());
-
-                        print((startDate.hour).toString());
-                        print((startDate.minute).toString());
-
-                        print((endDate.hour).toString());
-                        print((endDate.minute).toString());
-                        print("****END Booking is from today!****");
-
-                        if (((selectedTimeStartHour * 60) +
-                                    selectedTimeStartMinute) >=
-                                ((startDate.hour * 60) + startDate.minute) &&
-                            ((selectedTimeEndHour * 60) +
-                                    selectedTimeEndMinute) <=
-                                ((endDate.hour * 60) + endDate.minute)) {
-                          // Booking is between this timeslot
-                          print(
-                              "*******Booking is from today and within a timeslot********");
-                          foundReserved = true;
-                          break;
-                        }
-                      }
-                    }
-                  }
-
-                  if (foundReserved) {
-                    return new ListTile(
-                      leading: new CircleAvatar(
-                        child: new Text((index + 1).toString()),
-                        backgroundColor: Colors.blueAccent,
+                    new Container(
+                      child: new RichText(
+                        text: new TextSpan(
+                          text: todayDateNumber == 0
+                              ? "Rooster van vandaag"
+                              : "Rooster",
+                          style: new TextStyle(
+                              color: Colors.white, fontSize: 28.0),
+                        ),
                       ),
-                      title: new Text(
-                        "GERESERVEERD",
-                        style: new TextStyle(color: Colors.white),
-                      ),
-                      subtitle: new Text(
-                        "Dit tijdblok is al gereserveerd",
-                        style: new TextStyle(color: Colors.white70),
-                      ),
-                    );
-                  } else {
-                    return bookableItem;
-                  }
-                }
-              },
-            ),
-          ),
-          new Container(
-            height: 50.0,
-            width: double.infinity,
-            child: new FlatButton(
-              onPressed: () {
-                if (timeslotsSelectedWithCheckboxes.where((x) => x).length >
-                    0) {
-                  Navigator.push(
-                    context,
-                    new MyCustomRoute(
-                      builder: (_) => new RoomBookingPage(roomInfo: _roomInfo),
                     ),
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (_) => new AlertDialog(
-                          title: new Text("Foutmelding"),
-                          content: new SingleChildScrollView(
-                            child: new ListBody(
-                              children: <Widget>[
-                                new Text(
-                                    'U dient minstens 1 tijdblok te selecteren!')
-                              ],
-                            ),
-                          ),
-                          actions: <Widget>[
-                            new FlatButton(
-                              child: new Text('OK'),
-                              onPressed: () {
-                                Navigator.of(context).pop();
+                    new Expanded(
+                      child: new IconButton(
+                        icon: new Icon(Icons.arrow_right),
+                        onPressed: () {
+                          this.setState(() {
+                            if (todayDateNumber < 7) {
+                              todayDateNumber = todayDateNumber + 1;
+                              changeDate(true);
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              new Center(
+                child: new Container(
+                  padding: new EdgeInsets.only(top: 10.0),
+                  child: new RichText(
+                    text: new TextSpan(
+                      text: new DateFormat('d MMMM y').format(todayDate),
+                      style: new TextStyle(color: Colors.white, fontSize: 15.0),
+                    ),
+                  ),
+                ),
+              ),
+              new Expanded(
+                child: ListView.builder(
+                  padding: EdgeInsets.zero,
+                  itemCount: _timeSlotInfo.timeslotsOfADayStarting
+                      .length, // 1 day consists of 15 time blocks
+                  itemBuilder: (BuildContext context, int index) {
+                    {
+                      // ListTile to display when it is able to be booked:
+                      ListTile bookableItem = new ListTile(
+                        leading: new CircleAvatar(
+                          child: new Text((index + 1).toString()),
+                          backgroundColor: Colors.blueAccent,
+                        ),
+                        title: new Row(
+                          children: <Widget>[
+                            new Expanded(
+                                child: new Text(
+                                    _timeSlotInfo
+                                            .timeslotsOfADayStarting[index] +
+                                        " tot " +
+                                        _timeSlotInfo
+                                            .timeslotsOfADayEnding[index],
+                                    style: new TextStyle(color: Colors.white))),
+                            new Checkbox(
+                              value: timeslotsSelectedWithCheckboxes[index],
+                              onChanged: (bool value) {
+                                if (_roomInfo.id != "") {
+                                  this.setState(() {
+                                    timeslotsSelectedWithCheckboxes[index] =
+                                        value;
+                                    _roomInfo.checkedBookings[index] = value;
+                                  });
+                                }
                               },
-                            ),
+                            )
                           ],
                         ),
-                  );
-                }
-              },
-              child: new Text("Doorgaan naar reservering"),
-              color: Colors.lightBlue,
-              textColor: Colors.white,
-            ),
-          )
-        ],
-      ),
-    );
+                        subtitle: new Text(
+                          "Dit tijdblok is vrij om te reserveren",
+                          style: new TextStyle(color: Colors.white70),
+                        ),
+                        onTap: () {
+                          if (_roomInfo.id != "") {
+                            this.setState(() {
+                              timeslotsSelectedWithCheckboxes[index] =
+                                  !timeslotsSelectedWithCheckboxes[index];
+                              _roomInfo.checkedBookings[index] =
+                                  !_roomInfo.checkedBookings[index];
+                            });
+                          }
+                        },
+                      );
+
+                      // Check if current day and timeslot can be found in the bookings
+                      bool foundReserved = false;
+                      if (index <
+                          _timeSlotInfo.timeslotsOfADayStarting.length) {
+                        print("Trying to find reserved timeslots..");
+                        int selectedTimeStartHour = int.parse(_timeSlotInfo
+                            .timeslotsOfADayStarting[index]
+                            .toString()
+                            .split(":")[0]);
+                        int selectedTimeStartMinute = int.parse(_timeSlotInfo
+                            .timeslotsOfADayStarting[index]
+                            .toString()
+                            .split(":")[1]);
+                        int selectedTimeEndHour = int.parse(_timeSlotInfo
+                            .timeslotsOfADayEnding[index]
+                            .toString()
+                            .split(":")[0]);
+
+                        int selectedTimeEndMinute = int.parse(_timeSlotInfo
+                            .timeslotsOfADayEnding[index]
+                            .toString()
+                            .split(":")[1]);
+                        print("selectedTimeStartHour: " +
+                            selectedTimeStartHour.toString());
+                        print("selectedTimeStartMinute: " +
+                            selectedTimeStartMinute.toString());
+                        print("selectedTimeEndHour: " +
+                            selectedTimeEndHour.toString());
+                        print("selectedTimeStartMinute: " +
+                            selectedTimeEndMinute.toString());
+
+                        for (final item in _roomInfo.bookings) {
+                          // Timezone is by default UTC, so add 2 hours to make up with Amsterdam.
+                          DateTime startDate = DateTime
+                              .parse(item["start"])
+                              .toUtc()
+                              .add(Duration(hours: 2));
+                          DateTime endDate = DateTime
+                              .parse(item["end"])
+                              .toUtc()
+                              .add(Duration(hours: 2));
+                          // DEL? String retrievedDate =
+                          //     new DateFormat.yMd().format(startDate);
+                          print("Startdate: " + startDate.toString());
+                          print("Enddate: " + endDate.toString());
+                          // DEL? print("Retrieveddate: " + retrievedDate);
+
+                          // Check if current booking is from today and also check if
+                          // the time is this timeslot, than display it is reserved.
+                          // print("---DATE DETAILS---");
+                          // print("Retrieveddate:  " + retrievedDate + " - todayDate: " + todayDate);
+                          // print("Selectedtimehour*60: " + (selectedTimeHour*60).toString());
+                          // print("Selectedtimeminute: " + (selectedTimeHour*60).toString());
+
+                          String formattedStart =
+                              new DateFormat.yMMMd().format(startDate);
+                          String formattedToday =
+                              new DateFormat.yMMMd().format(todayDate);
+                          if (formattedStart == formattedToday) {
+                            // Booking is from today
+                            print("****Booking is from today!****");
+                            print('TIMESLOT START: ' +
+                                selectedTimeStartHour.toString() +
+                                ":" +
+                                selectedTimeStartMinute.toString());
+                            print('TIMESLOT END: ' +
+                                selectedTimeEndHour.toString() +
+                                ":" +
+                                selectedTimeEndMinute.toString());
+
+                            print((startDate.hour).toString());
+                            print((startDate.minute).toString());
+
+                            print((endDate.hour).toString());
+                            print((endDate.minute).toString());
+                            print("****END Booking is from today!****");
+
+                            if (((selectedTimeStartHour * 60) +
+                                        selectedTimeStartMinute) >=
+                                    ((startDate.hour * 60) +
+                                        startDate.minute) &&
+                                ((selectedTimeEndHour * 60) +
+                                        selectedTimeEndMinute) <=
+                                    ((endDate.hour * 60) + endDate.minute)) {
+                              // Booking is between this timeslot
+                              print(
+                                  "*******Booking is from today and within a timeslot********");
+                              foundReserved = true;
+                              break;
+                            }
+                          }
+                        }
+                      }
+
+                      if (foundReserved) {
+                        return new ListTile(
+                          leading: new CircleAvatar(
+                            child: new Text((index + 1).toString()),
+                            backgroundColor: Colors.blueAccent,
+                          ),
+                          title: new Text(
+                            "GERESERVEERD",
+                            style: new TextStyle(color: Colors.white),
+                          ),
+                          subtitle: new Text(
+                            "Dit tijdblok is al gereserveerd",
+                            style: new TextStyle(color: Colors.white70),
+                          ),
+                        );
+                      } else {
+                        return bookableItem;
+                      }
+                    }
+                  },
+                ),
+              ),
+              new Container(
+                height: 50.0,
+                width: double.infinity,
+                child: new FlatButton(
+                  onPressed: () {
+                    // Check if at least 1 timeslot has been checked
+                    if (timeslotsSelectedWithCheckboxes.where((x) => x).length >
+                        0) {
+                      // Check if user has the API auth token
+                      Navigator.push(
+                        context,
+                        new MyCustomRoute(
+                          builder: (_) =>
+                              new RoomBookingPage(roomInfo: _roomInfo),
+                        ),
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (_) => new AlertDialog(
+                              title: new Text("Foutmelding"),
+                              content: new SingleChildScrollView(
+                                child: new ListBody(
+                                  children: <Widget>[
+                                    new Text(
+                                        'U dient minstens 1 tijdblok te selecteren!')
+                                  ],
+                                ),
+                              ),
+                              actions: <Widget>[
+                                new FlatButton(
+                                  child: new Text('OK'),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                              ],
+                            ),
+                      );
+                    }
+                  },
+                  child: new Text("Doorgaan naar reservering"),
+                  color: Colors.lightBlue,
+                  textColor: Colors.white,
+                ),
+              )
+            ],
+          ),
+        ),
+      );
+    } else {
+      // Server is offline
+      return ServerOffline();
+    }
   }
 
   @override
   void initState() {
     super.initState();
-    this.getSWData();
+    this.checkAPI();
   }
 }

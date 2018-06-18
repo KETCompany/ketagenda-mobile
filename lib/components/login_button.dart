@@ -1,8 +1,9 @@
 import 'dart:async';
 
+import 'package:KETAgenda/services/api_tools.dart';
+import 'package:KETAgenda/services/authentication.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import '../globals.dart' as globals;
+import 'package:KETAgenda/globals.dart' as globals;
 
 class LoginButton extends StatefulWidget {
   @override
@@ -10,26 +11,14 @@ class LoginButton extends StatefulWidget {
 }
 
 class _LoginButton extends State<LoginButton> {
-  GoogleSignIn _googleSignIn = new GoogleSignIn(
-    scopes: [
-      'email',
-    ],
-  );
 
-  AlertDialog isLoggedIn;
-
-  Future<Null> _handleSignIn() async {
-    await _googleSignIn.signOut();
-    await _googleSignIn.signIn();
-    if (_googleSignIn.currentUser.email != "") {
-      if (_googleSignIn.currentUser.email.split("@")[1] == "hr.nl") {
-        globals.user.displayName = _googleSignIn.currentUser.displayName;
-        globals.user.email = _googleSignIn.currentUser.email;
-        // TODO: Check if its the first time logging in through API
-        // If thats the case, show /FirstTimePage. Else continue to rooms overview.
-        Navigator.of(context).pushNamed('/FirstTimePage');
-      }
-    }
+  bool apiIsOnline = true;
+  Future<Null> checkAPI() async {
+    // Check multiple endpoints to see if API is responding correctly
+    bool isOnline = await new API().checkAPI(globals.baseAPIURL, {});
+    setState(() {
+      apiIsOnline = isOnline ? true : false;
+    });
   }
 
   @override
@@ -40,12 +29,29 @@ class _LoginButton extends State<LoginButton> {
       margin: new EdgeInsets.only(left: 5.0, right: 5.0, bottom: 0.0),
       child: new FlatButton(
         onPressed: () {
-          _handleSignIn();
+          if (apiIsOnline) {
+            new Authentication().handleSignIn()
+                .then((x) {
+                  if(globals.user.apiToken != ""){
+                    Navigator.of(context).pushNamed('/BuildingSelectionPage'); 
+                  }
+                })
+                .catchError((e) => print(e));
+          } else {
+            checkAPI();
+          }
         },
-        child: new Text("Inloggen"),
+        child: new Text(
+            apiIsOnline ? "Inloggen" : "Server offline. Probeer opnieuw."),
         color: Colors.lightBlue,
         textColor: Colors.white,
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkAPI();
   }
 }

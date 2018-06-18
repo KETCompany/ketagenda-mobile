@@ -1,21 +1,21 @@
 {
   "project_info": {
-    "project_number": "92969696879",
-    "firebase_url": "https://ketagenda-d2d55.firebaseio.com",
-    "project_id": "ketagenda-d2d55",
-    "storage_bucket": "ketagenda-d2d55.appspot.com"
+    "project_number": "598561209308",
+    "firebase_url": "https://ketagenda-96c0d.firebaseio.com",
+    "project_id": "ketagenda-96c0d",
+    "storage_bucket": "ketagenda-96c0d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:92969696879:android:e63217ba96023610",
+        "mobilesdk_app_id": "1:598561209308:android:e63217ba96023610",
         "android_client_info": {
           "package_name": "com.example.ketagenda"
         }
       },
       "oauth_client": [
         {
-          "client_id": "92969696879-2hade78ac6foaf59janf045imc11u688.apps.googleusercontent.com",
+          "client_id": "598561209308-fqs98ctmglct13eqhf2lsaqc4g1p33u7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.ketagenda",
@@ -23,17 +23,25 @@
           }
         },
         {
-          "client_id": "92969696879-fj3u4fe1k1hjg6rg64t9iulj38qf19ub.apps.googleusercontent.com",
+          "client_id": "598561209308-iibpf6maa31d39f9tiutmpra4jpn9ge2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ketagenda",
+            "certificate_hash": "0ced77d0eb4f6adc908c5315132017682812548c"
+          }
+        },
+        {
+          "client_id": "598561209308-gpjgs4kklkq66uac6c90e6ssq9kjvp68.apps.googleusercontent.com",
           "client_type": 3
         },
         {
-          "client_id": "92969696879-fj3u4fe1k1hjg6rg64t9iulj38qf19ub.apps.googleusercontent.com",
+          "client_id": "598561209308-gpjgs4kklkq66uac6c90e6ssq9kjvp68.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA-cv6mmnUMkTIQm29y6Lz1um19DhmqgA0"
+          "current_key": "AIzaSyDFpa6MnpWns4XB3tOTvsKHE5dHzzYu180"
         }
       ],
       "services": {
@@ -44,7 +52,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "92969696879-fj3u4fe1k1hjg6rg64t9iulj38qf19ub.apps.googleusercontent.com",
+              "client_id": "598561209308-gpjgs4kklkq66uac6c90e6ssq9kjvp68.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
