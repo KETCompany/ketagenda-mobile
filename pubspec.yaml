@@ -2,6 +2,7 @@ name: KETAgenda
 description: Key for Electronic Technologies in Agenda's
 
 dependencies:
+  firebase_auth: "^0.5.11"
   flutter:
     sdk: flutter
 
@@ -10,8 +11,8 @@ dependencies:
   cupertino_icons: ^0.1.0
   barcode_scan: ^0.0.1
   intl: "^0.15.6"
-  google_sign_in:
   http: "^0.11.3+16"
+  google_sign_in: "^3.0.4"
     
 dev_dependencies:
   flutter_test:
