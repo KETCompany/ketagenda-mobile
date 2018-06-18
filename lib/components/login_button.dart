@@ -4,7 +4,6 @@ import 'package:KETAgenda/services/api_tools.dart';
 import 'package:KETAgenda/services/authentication.dart';
 import 'package:flutter/material.dart';
 import 'package:KETAgenda/globals.dart' as globals;
-import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginButton extends StatefulWidget {
   @override
@@ -12,18 +11,6 @@ class LoginButton extends StatefulWidget {
 }
 
 class _LoginButton extends State<LoginButton> {
-
-  // 
-  // bool apiIsOnline = false;
-  // Future<Null> checkAPI() async {
-  //   // Check if I can get status code 200 back
-  //   bool isOnline = await new API().urlResponseOK(globals.baseAPIURL);
-  //   bool isReturningHelloWorld =
-  //       await new API().retrieveHelloWorldJSON(globals.baseAPIURL);
-  //   setState(() {
-  //     apiIsOnline = isOnline && isReturningHelloWorld ? true : false;
-  //   });
-  // }
 
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {

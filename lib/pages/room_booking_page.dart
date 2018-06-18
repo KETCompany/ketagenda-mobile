@@ -80,13 +80,6 @@ class _RoomBookingPage extends State<RoomBookingPage> {
       "description": "Student Reservering (" + globals.user.email + ")",
       "groups": [],
       "bookings": listOfBookings
-      // "bookings":  [
-      //   {
-      //   "start": new DateTime.now().millisecondsSinceEpoch,
-      //   "end": new DateTime.now().millisecondsSinceEpoch + 3600,
-      //   "room": roomInfo.id
-      // }
-      // ]
     };
     String idAndBookingJSON = json.encode(idAndBooking);
     print("idAndBookingJSON THAT GOT SENT:");
