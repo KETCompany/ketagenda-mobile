@@ -32,12 +32,10 @@ class _RoomBookingPage extends State<RoomBookingPage> {
 
   bool apiIsOnline = true;
   Future<Null> checkAPI() async {
-    // Check if I can get status code 200 back
-    bool isOnline = await new API().urlResponseOK(globals.baseAPIURL);
-    bool isReturningHelloWorld =
-        await new API().retrieveHelloWorldJSON(globals.baseAPIURL);
+    // Check multiple endpoints to see if API is responding correctly
+    bool isOnline = await new API().checkAPI(url);
     setState(() {
-      apiIsOnline = isOnline && isReturningHelloWorld ? true : false;
+      apiIsOnline = isOnline ? true : false;
     });
   }
 

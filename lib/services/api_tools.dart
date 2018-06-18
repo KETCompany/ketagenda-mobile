@@ -2,8 +2,17 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:KETAgenda/globals.dart' as globals;
 
 class API {
+  Future<bool> checkAPI(url) async {
+    // Check if I can get status code 200 back
+    bool isOnline = await new API().urlResponseOK(globals.baseAPIURL);
+    bool isGettingAuthentication = await new API().urlResponseOK(url);
+    bool isReturningHelloWorld = await new API().retrieveHelloWorldJSON();
+    return isOnline && isReturningHelloWorld && isGettingAuthentication ? true : false;
+  }
+
   Future<bool> urlResponseOK(url) async {
     var res = new http.Client().get(url);
     int statusCode = await res
@@ -13,8 +22,8 @@ class API {
     return statusCode == 200 ? true : false;
   }
 
-  Future<bool> retrieveHelloWorldJSON(url) async {
-    var res = new http.Client().get(url);
+  Future<bool> retrieveHelloWorldJSON() async {
+    var res = new http.Client().get(globals.baseAPIURL);
     String result = await res
         .then((result) => json.decode(result.body))
         .then((json) => json['hello'].toString().toLowerCase())

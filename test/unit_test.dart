@@ -22,7 +22,7 @@ Future<bool> checkAPI() async {
   }); 
  
   // Check if I get value 'world' back from key 'hello' 
-  bool gotHelloWorld = await new API().retrieveHelloWorldJSON(globals.baseAPIURL); 
+  bool gotHelloWorld = await new API().retrieveHelloWorldJSON(); 
   test('Checking API Hello World result', () { 
     expect(gotHelloWorld, true); 
   }); 
