@@ -3,7 +3,6 @@ import 'package:flutter_driver/driver_extension.dart';
 import './pages/login_page.dart';
 import 'pages/building_selection_page.dart';
 import 'pages/first_time_page.dart';
-import 'pages/qrscan_result_page.dart';
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({ WidgetBuilder builder, RouteSettings settings })
@@ -30,10 +29,6 @@ void main() async {
         switch (settings.name) {
           case '/': return new MyCustomRoute(
             builder: (_) => new LoginPage(),
-            settings: settings,
-          );
-          case '/QRPage': return new MyCustomRoute(
-            builder: (_) => new QRPage(),
             settings: settings,
           );
           case '/FirstTimePage': return new MyCustomRoute(
