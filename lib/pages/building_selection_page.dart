@@ -4,7 +4,7 @@ import 'package:KETAgenda/services/authentication.dart';
 import 'package:KETAgenda/pages/room_details_page.dart';
 import 'package:KETAgenda/services/api_tools.dart';
 import 'package:flutter/material.dart';
-import 'package:KETAgenda/components/modal_server_offline.dart';
+import 'package:KETAgenda/pages/server_offline_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:KETAgenda/globals.dart' as globals;
 
@@ -42,7 +42,7 @@ class _BuildingSelectionPage extends State<BuildingSelectionPage> {
   }
 
   bool apiIsOnline = true;
-  Future<Null> checkAPI() async {
+  Future checkAPI() async {
     // Check multiple endpoints to see if API is responding correctly
     bool isOnline = await new API().checkAPI(url, {"Accept": "application/json", "Authorization": "Bearer " + globals.user.apiToken});
     setState(() {

@@ -1,9 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:KETAgenda/components/basic_user_info.dart';
+import 'package:KETAgenda/models/basic_user_info.dart';
 import 'package:KETAgenda/globals.dart' as globals;
 import 'package:http/http.dart' as http;
 
@@ -15,7 +14,7 @@ class Authentication {
     ],
   );
 
-  Future<Null> handleSignOut() async {
+  Future handleSignOut() async {
     await _googleSignIn.signOut();
     globals.user = new BasicUserInfo();
   }

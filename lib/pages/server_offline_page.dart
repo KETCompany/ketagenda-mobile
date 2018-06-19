@@ -1,11 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ServerOffline extends StatefulWidget {
-  @override
-  _ServerOffline createState() => new _ServerOffline();
-}
-
-class _ServerOffline extends State<ServerOffline> {
+class ServerOffline extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new WillPopScope(

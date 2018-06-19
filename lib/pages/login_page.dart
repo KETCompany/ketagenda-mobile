@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:KETAgenda/pages/room_details_page.dart';
 import 'package:KETAgenda/plugins/barcode_scan.dart';
 import 'package:flutter/material.dart';
-import '../components/login_button.dart';
+import 'package:KETAgenda/components/login_button.dart';
 
 class MyCustomRoute<T> extends MaterialPageRoute<T> {
   MyCustomRoute({WidgetBuilder builder, RouteSettings settings})
