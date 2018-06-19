@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:KETAgenda/components/basic_user_info.dart';
@@ -49,6 +50,8 @@ class Authentication {
         .get(Uri.encodeFull(globals.baseAPIURL + "/auth/firebase/callback"), headers: {"Authorization": "Bearer " + googleAuth.idToken});
         var resBody = json.decode(res.body);
         globals.user.apiToken = resBody['jwtToken'];
+      } else {
+        handleSignOut();
       }
     }
 

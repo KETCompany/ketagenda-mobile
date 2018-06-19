@@ -64,6 +64,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
       await getSWData();
     } else {
       // In case there is no token, let the user login with his/her account
+      await new Authentication().handleSignOut();
       await new Authentication().handleSignIn();
       checkAPI();
     }
@@ -467,6 +468,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         ),
                       );
                     } else {
+                      this.checkAPI();
                       showDialog(
                         context: context,
                         builder: (_) => new AlertDialog(
