@@ -13,7 +13,8 @@ class LoginButton extends StatefulWidget {
 class _LoginButton extends State<LoginButton> {
 
   bool apiIsOnline = true;
-  Future<Null> checkAPI() async {
+  Future checkAPI() async {
+    new Authentication().handleSignOut();
     // Check multiple endpoints to see if API is responding correctly
     bool isOnline = await new API().checkAPI(globals.baseAPIURL, {});
     setState(() {

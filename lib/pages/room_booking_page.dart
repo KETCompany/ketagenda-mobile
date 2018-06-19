@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:KETAgenda/models/timeslots.dart';
 import 'package:KETAgenda/services/api_tools.dart';
 import 'package:flutter/material.dart';
-import '../components/room_info.dart';
+import 'package:KETAgenda/models/room_info.dart';
 import 'package:KETAgenda/globals.dart' as globals;
 import 'package:http/http.dart' as http;
-import 'package:KETAgenda/components/modal_server_offline.dart';
+import 'package:KETAgenda/pages/server_offline_page.dart';
 
 class RoomBookingPage extends StatefulWidget {
   RoomBookingPage({Key key, this.roomInfo}) : super(key: key);
@@ -288,8 +288,8 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                               child: new ListBody(
                                 children: <Widget>[
                                   new Text(this.postIsAccepted
-                                      ? "Het is gelukt, jouw reservering staat nu vast! Wij hebben een e-mail verstuurd met de bevestiging."
-                                      : "Op dit moment kunt u niet reserveren.")
+                                      ? "Het is gelukt, jouw reservering staat nu vast!"
+                                      : "De reservering is niet gelukt, probeer het nogmaals of probeer andere tijdsloten!")
                                 ],
                               ),
                             ),
@@ -298,19 +298,13 @@ class _RoomBookingPage extends State<RoomBookingPage> {
                                 child: new Text('OK'),
                                 onPressed: () {
                                   Navigator.of(context).pop();
+                                  Navigator.pushNamed(context, "/BuildingSelectionPage");
                                 },
                               ),
                             ],
                           ),
-                    )));
-
-                // Navigator.push(
-                //   context,
-                //   new MyCustomRoute(
-                //     builder: (_) =>
-                //         new RoomDetailsPage(roomId: data[index]["_id"]),
-                //   ),
-                // );
+                    )
+                    ));
               },
               child: new Text("Reservering plaatsen"),
               color: Colors.lightBlue,

@@ -1,14 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:KETAgenda/components/room_info.dart';
+import 'package:KETAgenda/components/room.dart';
+import 'package:KETAgenda/models/room_info.dart';
 import 'package:KETAgenda/models/timeslots.dart';
 import 'package:KETAgenda/services/api_tools.dart';
-import 'package:KETAgenda/components/modal_server_offline.dart';
+import 'package:KETAgenda/pages/server_offline_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'room_booking_page.dart';
-import '../components/room.dart';
 import 'package:KETAgenda/globals.dart' as globals;
 import 'package:KETAgenda/services/authentication.dart';
 
@@ -64,6 +64,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
       await getSWData();
     } else {
       // In case there is no token, let the user login with his/her account
+      await new Authentication().handleSignOut();
       await new Authentication().handleSignIn();
       checkAPI();
     }
@@ -467,6 +468,7 @@ class _RoomDetailsPage extends State<RoomDetailsPage> {
                         ),
                       );
                     } else {
+                      this.checkAPI();
                       showDialog(
                         context: context,
                         builder: (_) => new AlertDialog(

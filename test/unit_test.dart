@@ -14,7 +14,7 @@ void main() async {
   nonAsyncTests(); 
 } 
  
-Future<bool> checkAPI() async { 
+Future checkAPI() async { 
   // Check if I can get status code 200 back 
   bool isOnline = await new API().urlResponseOK(globals.baseAPIURL, {}); 
   test('Checking the API Status Code', () { 
@@ -25,8 +25,9 @@ Future<bool> checkAPI() async {
   bool gotHelloWorld = await new API().retrieveHelloWorldJSON(); 
   test('Checking API Hello World result', () { 
     expect(gotHelloWorld, true); 
-  }); 
-  return true; 
+  });
+
+  
 } 
  
 void nonAsyncTests() { 
@@ -34,4 +35,6 @@ void nonAsyncTests() {
   test('1 == 1', () { 
     expect(1, 1); 
   }); 
+
+  
 }
